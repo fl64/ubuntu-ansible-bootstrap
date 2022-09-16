@@ -1,0 +1,65 @@
+---
+- name: Zsh | Install zsh
+  tags:
+    - zsh
+  block:
+    - name: Zsh | Install zsh
+      ansible.builtin.apt:
+        name: zsh
+        state: latest
+        update_cache: true
+
+    - name: Zsh | Set user shell
+      ansible.builtin.user:
+        name: "{{ user_name }}"
+        shell: /usr/bin/zsh
+
+
+- name: Zsh | Install oh-my-zsh
+  become: false
+  tags:
+    - zsh
+    - oh-my-zsh
+  block:
+    - name: Zsh | Download zsh installer
+      ansible.builtin.get_url:
+        url: https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+        dest: /tmp/zsh-installer.sh
+        mode: 0755
+
+    - name: Zsh | Execute the zsh-installer.sh
+      ansible.builtin.command: /tmp/zsh-installer.sh
+      args:
+        creates: "{{ user_home }}/.oh-my-zsh"
+
+    - name: Zsh | Remove the zsh-installer.sh
+      ansible.builtin.file:
+        path: /tmp/zsh-installer.sh
+        state: absent
+
+    - name: Zsh | Install zsh-syntax-highlighting
+      ansible.builtin.git:
+        repo: https://github.com/zsh-users/zsh-syntax-highlighting
+        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+        force: true
+
+    - name: Zsh | Install zsh-autosuggestions
+      ansible.builtin.git:
+        repo: https://github.com/zsh-users/zsh-autosuggestions
+        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        force: true
+
+    # https://medium.com/@alex285/get-powerlevel9k-the-most-cool-linux-shell-ever-1c38516b0caa
+    - name: Zsh | Install powerlevel10k
+      ansible.builtin.git:
+        repo: https://github.com/romkatv/powerlevel10k.git
+        dest: "{{ user_home }}/.oh-my-zsh/custom/themes/powerlevel10k"
+        force: true
+
+    - name: Zsh | Copy .zshrc config
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ user_home }}/"
+        mode: 0644
+      with_items:
+        - .zshrc

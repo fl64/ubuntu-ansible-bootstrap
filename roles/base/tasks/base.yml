@@ -1,0 +1,83 @@
+---
+- name: Install base apps
+  ansible.builtin.apt:
+    name:
+      - htop
+      - iotop
+      - nmap
+      - fzf
+      - exa
+      - remmina
+      - jq
+      - jc
+      - asciinema
+      - peek
+      - unrar
+      - tmate  # remote ssh share
+      - inotify-tools
+      - timeshift
+      - sysprof
+      - direnv
+      - tmux
+    state: latest
+    update_cache: true
+
+- name: Lynis | Install lynis
+  block:
+    - name: Lynis | Add apt key
+      ansible.builtin.apt_key:
+        url: https://packages.cisofy.com/keys/cisofy-software-public.key
+
+    - name: Lynis | Add repo
+      ansible.builtin.apt_repository:
+        repo: deb https://packages.cisofy.com/community/lynis/deb/ stable main
+        state: present
+        filename: lynis
+
+    - name: Lynis | Install
+      ansible.builtin.apt:
+        name:
+          - lynis
+        state: latest
+        update_cache: true
+
+# https://github.com/mikefarah/yq
+- name: Yq | Install yq {{ yq_ver }}
+  vars:
+    yq_ver: v4.27.5
+  ansible.builtin.get_url:
+    url: "https://github.com/mikefarah/yq/releases/download/{{ yq_ver }}/yq_linux_amd64"
+    dest: /usr/local/bin/yq
+    force: true
+    mode: 0755
+    checksum: "sha256:9a54846e81720ae22814941905cd3b056ebdffb76bf09acffa30f5e90b22d615"
+  tags:
+    - yq
+
+# https://github.com/homeport/dyff
+- name: Dyff | Install dyff {{ dyff_ver }}
+  vars:
+    dyff_ver: 1.5.5
+  ansible.builtin.unarchive:
+    src: "https://github.com/homeport/dyff/releases/download/v{{ dyff_ver }}/dyff_{{ dyff_ver }}_linux_amd64.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - dyff  # extract just one file
+  tags:
+    - dyff
+
+# https://github.com/fullstorydev/grpcurl
+- name: Grpcurl | Install grpcurl {{ grpcurl_ver }}
+  vars:
+    grpcurl_ver: 1.8.7
+  ansible.builtin.unarchive:
+    src: "https://github.com/fullstorydev/grpcurl/releases/download/v{{ grpcurl_ver }}/grpcurl_{{ grpcurl_ver }}_linux_x86_64.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - grpcurl  # extract just one file
+  tags:
+    - grpcurl

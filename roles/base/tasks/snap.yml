@@ -1,0 +1,21 @@
+---
+- name: Snap | Check
+  ansible.builtin.command: which snap
+  register: snap_installed
+  ignore_errors: true
+  check_mode: false
+  changed_when: false
+
+- name: Snap | Install snap packages
+  community.general.snap:
+    name:
+      - sublime-text
+      - telegram-desktop
+      - dbeaver-ce
+      - kontena-lens
+      - shadowsocks-libev
+      - obsidian
+      - goland
+  when: snap_installed.rc == 0
+  tags:
+    - snap

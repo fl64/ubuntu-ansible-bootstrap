@@ -1,0 +1,48 @@
+---
+- name: Install base packages
+  ansible.builtin.import_tasks: base.yml
+  tags: [base]
+
+- name: Install media packages
+  ansible.builtin.import_tasks: media.yml
+  tags: [media]
+
+- name: Install networking packages
+  ansible.builtin.import_tasks: networking.yml
+  tags: [networking]
+
+- name: Install vim packages
+  ansible.builtin.import_tasks: vim.yml
+  tags: [vim]
+
+- name: Install fonts packages
+  ansible.builtin.import_tasks: fonts.yml
+  tags: [fonts]
+
+- name: Install dev packages
+  ansible.builtin.import_tasks: dev.yml
+  tags: [dev]
+
+- name: Install terminal packages
+  ansible.builtin.import_tasks: terminal.yml
+  tags: [terminal]
+
+- name: Install snap packages
+  ansible.builtin.import_tasks: snap.yml
+  tags: [snap]
+
+- name: Install pki packages
+  ansible.builtin.import_tasks: pki.yml
+  tags: [pki]
+
+- name: Install docker packages
+  ansible.builtin.import_tasks: docker.yml
+  tags: [docker]
+
+- name: Install k8s packages
+  ansible.builtin.import_tasks: k8s.yml
+  tags: [k8s]
+
+- name: Install hasicorp packages
+  ansible.builtin.import_tasks: hasicorp.yml
+  tags: [hashicorp, tf, vault, packer, never]

@@ -1,0 +1,58 @@
+---
+- name: Install tilix
+  ansible.builtin.apt:
+    name: tilix
+    state: latest
+    update_cache: true
+
+- name: Check dconf
+  ansible.builtin.command: which dconf
+  register: dconf_installed
+  ignore_errors: true
+  check_mode: false
+  changed_when: false
+
+# dconf dump /com/gexperts/Tilix/
+- name: Terminal | Set tilix settings
+  become: false
+  ansible.builtin.shell: |
+    which dconf && dconf load /com/gexperts/Tilix/ << EOF
+    [/]
+    prompt-on-close=true
+    quake-specific-monitor=0
+    theme-variant='dark'
+    warn-vte-config-issue=false
+
+    [profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d]
+    background-color='#282828'
+    badge-color='#AC7EA8'
+    badge-color-set=false
+    bold-color-set=false
+    cursor-background-color='#A1B0B8'
+    cursor-colors-set=false
+    cursor-foreground-color='#BDC3C7'
+    font='FuraCode Nerd Font weight=453 10'
+    foreground-color='#EBDBB2'
+    highlight-colors-set=false
+    palette=['#282828', '#CC241D', '#98971A', '#D79921', '#458588', '#B16286', '#689D6A', '#A89984', '#928374', '#FB4934', '#B8BB26', '#FABD2F', '#83A598', '#D3869B', '#8EC07C', '#EBDBB2']
+    use-system-font=false
+    use-theme-colors=false
+    visible-name='Default'
+    EOF
+  when: dconf_installed.rc == 0
+
+# - name: Terminal | install direnv
+#   vars:
+#     direnv_ver: 2.22.0
+#     direnv_url: https://github.com/direnv/direnv/releases/download/v{{ direnv_ver }}/direnv.linux-amd64
+#   get_url:
+#     url: "{{ direnv_url }}"
+#     dest: "/usr/local/bin/direnv"
+#     mode: '0755'
+#     force: true
+
+# - name: "Fix ~[[200 issue"
+#   ansible.builtin.lineinfile:
+#     path: "{{ user_home }}/.inputrc"
+#     regexp: "^set enable-bracketed-paste.+"
+#     line: set enable-bracketed-paste off

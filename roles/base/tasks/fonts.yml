@@ -1,0 +1,46 @@
+---
+- name: Fonts | Install fonts
+  ansible.builtin.apt:
+    name:
+      - fonts-firacode
+    state: present
+    update_cache: true
+
+- name: Look_and_feel | Install Nerd fonts
+  become: false
+  tags: [fonts]
+  vars:
+    nerd_fonts:
+      - {font: "BlexMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/IBMPlexMono.zip"}
+      - {font: "Caskaydia", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip"}
+      - {font: "DroidSansMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.0.0/DroidSansMono.zip"}
+      - {font: "Inconsolata", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/InconsolataGo.zip"}
+      - {font: "Iosevka", link: "https://github.com/be5invis/Iosevka/releases/download/v16.3.6/ttc-iosevka-16.3.6.zip"}
+      - {font: "IosevkaTerm", link: "https://github.com/be5invis/Iosevka/releases/download/v16.3.6/ttc-sgr-iosevka-term-16.3.6.zip"}
+      - {font: "FiraCode", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraCode.zip"}
+      - {font: "FiraMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraMono.zip"}
+      - {font: "JetBrainsMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/JetBrainsMono.zip"}
+      - {font: "UbuntuMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/UbuntuMono.zip"}
+  block:
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ nerd_fonts }}"
+
+    - name: Fonts | Create font dirs in "~/.local/share/fonts/"
+      ansible.builtin.file:
+        path: "{{ user_home }}/.local/share/fonts/{{ item.font }}"
+        state: directory
+        mode: "0775"
+      with_items: "{{ nerd_fonts }}"
+      notify:
+        - Reload font cache
+
+    - name: Fonts | Install nerd fonts
+      ansible.builtin.unarchive:
+        src: "{{ item.link }}"
+        dest: "/home/{{ user_name }}/.local/share/fonts/{{ item.font }}"
+        remote_src: true
+        mode: 0644
+      with_items: "{{ nerd_fonts }}"
+      notify:
+        - Reload font cache

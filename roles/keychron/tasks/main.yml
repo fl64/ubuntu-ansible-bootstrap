@@ -1,0 +1,29 @@
+---
+- name: Keychron k2
+  tags:
+    - keychron
+  block:
+    - name: Keychron k2 | Create service
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=Keychron k2 fn keys
+
+          [Service]
+          Type=oneshot
+          ExecStart=bash -c "echo 2 > /sys/module/hid_apple/parameters/fnmode"
+          ExecStart=bash -c "echo 1 > /sys/module/hid_apple/parameters/swap_opt_cmd"
+          RemainAfterExit=true
+          StandardOutput=journal
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/keychron-k2.service
+        mode: "0644"
+
+    - name: Keychron k2 | Start service
+      ansible.builtin.systemd:
+        name: keychron-k2
+        daemon_reload: true
+        enabled: true
+        state: started

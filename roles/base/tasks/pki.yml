@@ -1,0 +1,45 @@
+---
+# https://github.com/cloudflare/cfssl
+- name: Install cfssl {{ cfssl_ver }}
+  vars:
+    cfssl_ver: 1.6.3
+    cfssl_url: https://github.com/cloudflare/cfssl/releases/download/v{{ cfssl_ver }}
+  ansible.builtin.get_url:
+    url: "{{ cfssl_url }}/{{ item.src }}"
+    dest: "/usr/local/bin/{{ item.dest }}"
+    mode: "0755"
+    force: true
+  with_items:
+    - {src: "cfssl-certinfo_{{ cfssl_ver }}_linux_amd64", dest: "cfssl-certinfo"}
+    - {src: "cfssl-bundle_{{ cfssl_ver }}_linux_amd64", dest: "cfssl-bundle"}
+    - {src: "cfssl-newkey_{{ cfssl_ver }}_linux_amd64", dest: "cfssl-newkey"}
+    - {src: "cfssljson_{{ cfssl_ver }}_linux_amd64", dest: "cfssljson"}
+    - {src: "cfssl_{{ cfssl_ver }}_linux_amd64", dest: "cfssl"}
+    - {src: "mkbundle_{{ cfssl_ver }}_linux_amd64", dest: "mkbundle"}
+    - {src: "multirootca_{{ cfssl_ver }}_linux_amd64", dest: "multirootca"}
+  tags:
+    - cfssl
+
+# https://github.com/pete911/certinfo
+- name: Certinfo | Install certinfo {{ certinfo_ver }}
+  vars:
+    certinfo_ver: 1.0.7
+  ansible.builtin.unarchive:
+    src: "https://github.com/pete911/certinfo/releases/download/v{{ certinfo_ver }}/certinfo_{{ certinfo_ver }}_linux_amd64.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+  tags:
+    - certinfo
+
+# https://github.com/FiloSottile/mkcert
+- name: Mkcert | Install mkcert {{ mkcert_ver }}
+  vars:
+    mkcert_ver: 1.4.4
+  ansible.builtin.get_url:
+    url: "https://github.com/FiloSottile/mkcert/releases/download/v{{ mkcert_ver }}/mkcert-v{{ mkcert_ver }}-linux-amd64"
+    dest: /usr/local/bin/mkcert
+    force: true
+    mode: 0755
+  tags:
+    - mkcert

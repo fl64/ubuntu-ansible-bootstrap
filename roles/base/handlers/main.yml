@@ -1,0 +1,4 @@
+---
+- name: Reload font cache
+  become: true
+  ansible.builtin.command: fc-cache -fv
