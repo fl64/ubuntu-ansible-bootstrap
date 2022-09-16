@@ -1,0 +1,39 @@
+- name: Fonts | Install fonts
+  apt:
+    name:
+    - fonts-firacode
+    state: present
+
+- name: Look_and_feel | install Nerd fonts
+  become: false
+  block:
+  - debug: msg={{ nerd_fonts }}
+  - name: Fonts | Create font dirs in "{{ lookup('env','HOME') }}/.local/share/fonts/"
+    file:
+      path: "{{ lookup('env','HOME') }}/.local/share/fonts/{{ item.font }}"
+      state: directory
+    with_items: "{{nerd_fonts}}"
+    notify:
+    - reload font cache
+  - name: Fonts | Install nerd fonts
+    unarchive:
+      src: "{{ item.link }}"
+      dest: "/home/{{ lookup('env','USER') }}/.local/share/fonts/{{ item.font }}"
+      remote_src: yes
+      #mode: 0644
+    with_items: "{{nerd_fonts}}"
+    notify:
+    - reload font cache
+  tags: [fonts]
+  vars:
+    nerd_fonts:
+    - { font: "BlexMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/IBMPlexMono.zip"}
+    - { font: "Caskaydia", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip"}
+    - { font: "DroidSansMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.0.0/DroidSansMono.zip"}
+    - { font: "Inconsolata", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/InconsolataGo.zip"}
+    - { font: "Iosevka", link: "https://github.com/be5invis/Iosevka/releases/download/v16.3.6/ttc-iosevka-16.3.6.zip"}
+    - { font: "IosevkaTerm", link: "https://github.com/be5invis/Iosevka/releases/download/v16.3.6/ttc-sgr-iosevka-term-16.3.6.zip"}
+    - { font: "FiraCode", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraCode.zip"}
+    - { font: "FiraMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraMono.zip"}
+    - { font: "JetBrainsMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/JetBrainsMono.zip"}
+    - { font: "UbuntuMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/UbuntuMono.zip"}

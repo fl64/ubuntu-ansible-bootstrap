@@ -1,0 +1,16 @@
+---
+# ansible-playbook -vv -K playbook.yaml --diff --tags vbox
+- name: main
+  hosts: 127.0.0.1
+  connection: local
+  diff: yes
+  become: yes
+  roles:
+  - role: base
+    tags: [base]
+  - role: keychron
+    tags: [keychron]
+  - role: sysctl
+    tags: [sysctl]
+  - role: zsh
+    tags: [zsh]

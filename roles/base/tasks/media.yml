@@ -1,0 +1,21 @@
+- name: media | install media apps
+  package:
+    name:
+    - minidlna
+    - flameshot
+    - peek
+    - rawtherapee
+    - inkscape
+    - gimp
+    - vlc
+    - youtube-dl
+    - audacious
+    - pinta
+    state: latest
+
+- name: medai | cleanup
+  package:
+    name:
+    - rhythmbox
+    - cheese
+    state: absent

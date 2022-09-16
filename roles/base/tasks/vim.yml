@@ -1,0 +1,16 @@
+- name: vim | install vim
+  package:
+    name:
+    - vim
+    state: latest
+
+- name: vim | configure vim
+  copy:
+    content: |
+      colorscheme industry
+      set number
+      syntax on
+      set hlsearch
+      set et
+      set sw=2 ts=2 sts=2
+    dest: "{{ lookup('env','HOME') }}/.vimrc"

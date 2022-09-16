@@ -1,0 +1,45 @@
+- name:
+  include: base.yml
+  tags: [base]
+
+- name:
+  include: media.yml
+
+- name:
+  include: networking.yml
+
+- name:
+  include: vim.yml
+  tags: [vim]
+
+- name:
+  include: fonts.yml
+  tags: [fonts]
+
+- name:
+  include: dev.yml
+  tags: [dev]
+
+- name:
+  include: terminal.yml
+  tags: [terminal]
+
+- name:
+  include: snap.yml
+  tags: [snap]
+
+- name:
+  include: pki.yml
+  tags: [pki]
+
+- name:
+  include: docker.yml
+  tags: [docker]
+
+- name:
+  include: k8s.yml
+  tags: [k8s]
+
+- name:
+  include: hasicorp.yml
+  tags: [hashicorp, tf, vault, packer]
