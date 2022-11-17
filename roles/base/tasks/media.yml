@@ -1,21 +1,23 @@
-- name: media | install media apps
-  package:
+---
+- name: Media | Install media apps
+  ansible.builtin.apt:
     name:
-    - minidlna
-    - flameshot
-    - peek
-    - rawtherapee
-    - inkscape
-    - gimp
-    - vlc
-    - youtube-dl
-    - audacious
-    - pinta
+      - minidlna
+      - flameshot
+      - peek
+      - rawtherapee
+      - inkscape
+      - gimp
+      - vlc
+      - youtube-dl
+      - audacious
+      - pinta
     state: latest
+    update_cache: true
 
-- name: medai | cleanup
-  package:
+- name: Medai | Cleanup
+  ansible.builtin.apt:
     name:
-    - rhythmbox
-    - cheese
+      - rhythmbox
+      - cheese
     state: absent

@@ -174,3 +174,4 @@ alias d8-ce="kubectl edit cm -n d8-cni-cilium cilium-config"
 alias d8-cl="kubectl -n d8-cni-cilium logs daemonsets/agent -f"
 
 . <(istioctl completion zsh)
+. <(kubespy completion zsh)

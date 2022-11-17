@@ -1,31 +1,35 @@
-- name: hashicorp | add apt key
+---
+- name: Hashicorp | Add apt key
   ansible.builtin.apt_key:
     url: https://apt.releases.hashicorp.com/gpg
-    keyring: /usr/share/keyrings/hasicorp.gpg
+    keyring: /usr/share/keyrings/hashicorp-archive-keyring.gpg
 
-- name: hasicorp | add repo
+- name: Hasicorp | Add repo
   ansible.builtin.apt_repository:
-    repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
     state: present
     filename: hasicorp
 
-- name: hasicorp | install
-  apt:
+- name: Hasicorp | Install
+  ansible.builtin.apt:
     name:
       - terraform
       - vault
       - packer
     state: latest
+    update_cache: true
 
-- name: tf | configure .terraformrc
-  copy:
+- name: TF | Configure .terraformrc
+  ansible.builtin.copy:
     content: |
       plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
-    dest: "{{ lookup('env','HOME') }}/.terraformrc"
+      provider_installation { network_mirror { url = "https://registry.comcloud.xyz/" } }
+    dest: "{{ user_home }}/.terraformrc"
+    mode: "0644"
 
-- name: tf | create cache directory
+- name: TF | Create cache directory
   ansible.builtin.file:
-    path: "{{ lookup('env','HOME') }}/.terraform.d/plugin-cache"
+    path: "{{ user_home }}/.terraform.d/plugin-cache"
     state: directory
-    owner:  "{{ lookup('env','USER') }}"
-    mode: '0755'
+    owner: "{{ user_name }}"
+    mode: "0755"

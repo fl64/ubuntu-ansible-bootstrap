@@ -1,11 +1,13 @@
-- name: vim | install vim
-  package:
+---
+- name: Vim | Install vim
+  ansible.builtin.apt:
     name:
-    - vim
+      - vim
     state: latest
+    update_cache: true
 
-- name: vim | configure vim
-  copy:
+- name: Vim | Configure vim
+  ansible.builtin.copy:
     content: |
       colorscheme industry
       set number
@@ -13,4 +15,5 @@
       set hlsearch
       set et
       set sw=2 ts=2 sts=2
-    dest: "{{ lookup('env','HOME') }}/.vimrc"
+    dest: "{{ user_home }}/.vimrc"
+    mode: "0644"

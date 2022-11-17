@@ -1,15 +1,22 @@
-
-
-- name: install tilix
-  package:
+---
+- name: Install tilix
+  ansible.builtin.apt:
     name: tilix
     state: latest
+    update_cache: true
+
+- name: Check dconf
+  ansible.builtin.command: which dconf
+  register: dconf_installed
+  ignore_errors: true
+  check_mode: false
+  changed_when: false
 
 # dconf dump /com/gexperts/Tilix/
-- name: terminal | set tilix settings
+- name: Terminal | Set tilix settings
   become: false
-  shell: |
-    dconf load /com/gexperts/Tilix/ << EOF
+  ansible.builtin.shell: |
+    which dconf && dconf load /com/gexperts/Tilix/ << EOF
     [/]
     prompt-on-close=true
     quake-specific-monitor=0
@@ -32,6 +39,7 @@
     use-theme-colors=false
     visible-name='Default'
     EOF
+  when: dconf_installed.rc == 0
 
 # - name: Terminal | install direnv
 #   vars:
@@ -43,8 +51,8 @@
 #     mode: '0755'
 #     force: true
 
-- name: "Fix ~[[200 issue"
-  ansible.builtin.lineinfile:
-    path: "{{ lookup('env','HOME') }}/.inputrc"
-    regexp: '^set enable-bracketed-paste.+'
-    line: set enable-bracketed-paste off
+# - name: "Fix ~[[200 issue"
+#   ansible.builtin.lineinfile:
+#     path: "{{ user_home }}/.inputrc"
+#     regexp: "^set enable-bracketed-paste.+"
+#     line: set enable-bracketed-paste off
