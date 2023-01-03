@@ -3,11 +3,21 @@
   tags:
     - keychron
   block:
+    # https://schnouki.net/post/2019/how-to-use-a-keychron-k2-usb-keyboard-on-linux/
+
+    # - name: Keychron k2 setting
+    #   ansible.builtin.copy:
+    #     content: |
+    #       options hid_apple fnmode=2 swap_opt_cmd=1
+    #     dest: "/etc/modprobe.d/hid_apple.conf"
+    #     mode: "0644"
+
     - name: Keychron k2 | Create service
       ansible.builtin.copy:
         content: |
           [Unit]
           Description=Keychron k2 fn keys
+          After=multi-user.target
 
           [Service]
           Type=oneshot

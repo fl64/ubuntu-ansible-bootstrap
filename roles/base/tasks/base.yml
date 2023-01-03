@@ -19,6 +19,7 @@
       - sysprof
       - direnv
       - tmux
+      - keychain
     state: latest
     update_cache: true
 

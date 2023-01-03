@@ -29,7 +29,7 @@
 
 - name: Install snap packages
   ansible.builtin.import_tasks: snap.yml
-  tags: [snap]
+  tags: [snap, never]
 
 - name: Install pki packages
   ansible.builtin.import_tasks: pki.yml
