@@ -12,7 +12,7 @@
       - sublime-text
       - telegram-desktop
       - dbeaver-ce
-      - kontena-lens
+      # - kontena-lens
       - shadowsocks-libev
       - obsidian
       - goland

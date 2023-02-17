@@ -1,7 +1,7 @@
 ---
 - name: Install base packages
   ansible.builtin.import_tasks: base.yml
-  tags: [base]
+  tags: [base-base]
 
 - name: Install media packages
   ansible.builtin.import_tasks: media.yml

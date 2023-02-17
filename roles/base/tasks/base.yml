@@ -19,6 +19,7 @@
       - sysprof
       - direnv
       - tmux
+      - git-crypt
     state: latest
     update_cache: true
 
@@ -44,20 +45,20 @@
 # https://github.com/mikefarah/yq
 - name: Yq | Install yq {{ yq_ver }}
   vars:
-    yq_ver: v4.27.5
+    yq_ver: v4.30.8
   ansible.builtin.get_url:
     url: "https://github.com/mikefarah/yq/releases/download/{{ yq_ver }}/yq_linux_amd64"
     dest: /usr/local/bin/yq
     force: true
     mode: 0755
-    checksum: "sha256:9a54846e81720ae22814941905cd3b056ebdffb76bf09acffa30f5e90b22d615"
+    checksum: "sha256:6c911103e0dcc54e2ba07e767d2d62bcfc77452b39ebaee45b1c46f062f4fd26"
   tags:
     - yq
 
 # https://github.com/homeport/dyff
 - name: Dyff | Install dyff {{ dyff_ver }}
   vars:
-    dyff_ver: 1.5.5
+    dyff_ver: 1.5.6
   ansible.builtin.unarchive:
     src: "https://github.com/homeport/dyff/releases/download/v{{ dyff_ver }}/dyff_{{ dyff_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin

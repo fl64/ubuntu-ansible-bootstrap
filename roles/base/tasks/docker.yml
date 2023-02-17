@@ -34,9 +34,10 @@
         groups: docker
         append: true
 
+# https://github.com/docker/compose
 - name: Docker | Install docker-compose {{ docker_compose_ver }}
   vars:
-    docker_compose_ver: v2.12.2
+    docker_compose_ver: v2.16.0
   ansible.builtin.get_url:
     url: "https://github.com/docker/compose/releases/download/{{ docker_compose_ver }}/docker-compose-Linux-x86_64"
     dest: /usr/local/bin/docker-compose
