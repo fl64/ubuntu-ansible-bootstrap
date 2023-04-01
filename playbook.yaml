@@ -6,11 +6,11 @@
   diff: true
   become: true
   roles:
-  - role: base
-    tags: [base]
-  - role: keychron
-    tags: [keychron]
-  - role: sysctl
-    tags: [sysctl, kernel]
-  - role: zsh
-    tags: [zsh]
+    - role: base
+      tags: [base]
+    - role: keychron
+      tags: [keychron]
+    - role: sysctl
+      tags: [sysctl, kernel]
+    - role: zsh
+      tags: [zsh]
