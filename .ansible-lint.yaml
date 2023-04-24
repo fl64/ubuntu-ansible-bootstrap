@@ -1,0 +1,9 @@
+---
+# .ansible-lint
+
+profile: null
+
+warn_list:
+  - yaml[line-length]
+  - package-latest
+  - latest[git]

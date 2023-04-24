@@ -53,7 +53,7 @@
 # https://github.com/stern/stern
 - name: K8s | Install stern {{ stern_ver }}
   vars:
-    stern_ver: 1.23.0
+    stern_ver: 1.25.0
   ansible.builtin.unarchive:
     src: "https://github.com/stern/stern/releases/download/v{{ stern_ver }}/stern_{{ stern_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin
@@ -79,16 +79,30 @@
     src: https://github.com/pulumi/kubespy/releases/download/{{ kubespy_ver }}/kubespy-{{ kubespy_ver }}-linux-amd64.tar.gz
     dest: /usr/local/bin
     extra_opts:
-      - kubespy  # extract just one file
+      - kubespy # extract just one file
     remote_src: true
     mode: 0755
   tags:
     - kubespy
 
+# https://github.com/kubernetes-sigs/kustomize
+- name: K8s | Install kustomize {{ kustomize_ver }}
+  vars:
+    kustomize_ver: 5.0.1
+  ansible.builtin.unarchive:
+    src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv{{ kustomize_ver }}/kustomize_v{{ kustomize_ver }}_linux_amd64.tar.gz
+    dest: /usr/local/bin
+    extra_opts:
+      - kustomize # extract just one file
+    remote_src: true
+    mode: 0755
+  tags:
+    - kustomize
+
 # https://github.com/helm/helm/releases
 - name: K8s | Install helm {{ helm_ver }}
   vars:
-    helm_ver: v3.11.1
+    helm_ver: v3.11.3
   ansible.builtin.unarchive:
     src: "https://get.helm.sh/helm-{{ helm_ver }}-linux-amd64.tar.gz"
     dest: /usr/local/bin
@@ -126,7 +140,7 @@
 # https://github.com/istio/istio/releases/
 - name: K8s | Install istioctl {{ istioctl_ver }}
   vars:
-    istioctl_ver: 1.17.0
+    istioctl_ver: 1.17.2
   ansible.builtin.unarchive:
     src: "https://github.com/istio/istio/releases/download/{{ istioctl_ver }}/istioctl-{{ istioctl_ver }}-linux-amd64.tar.gz"
     dest: /usr/local/bin
@@ -138,9 +152,9 @@
 # https://github.com/stackrox/kube-linter
 - name: K8s | Install kube-linter
   vars:
-    kube_linter_ver: 0.6.0
+    kube_linter_ver: 0.6.3
   ansible.builtin.get_url:
-    url: "https://github.com/stackrox/kube-linter/releases/download/{{ kube_linter_ver }}/kube-linter-linux"
+    url: "https://github.com/stackrox/kube-linter/releases/download/v{{ kube_linter_ver }}/kube-linter-linux"
     force: true
     dest: "/usr/local/bin/kube-linter"
     mode: 0755
@@ -150,7 +164,7 @@
 # https://kind.sigs.k8s.io/
 - name: K8s | Install kind
   vars:
-    kind_ver: 0.17.0
+    kind_ver: 0.18.0
   ansible.builtin.get_url:
     url: "https://kind.sigs.k8s.io/dl/v{{ kind_ver }}/kind-linux-amd64"
     force: true
@@ -162,7 +176,7 @@
 # https://github.com/kubeshark/kubeshark
 - name: K8s | Install kubeshark
   vars:
-    kubeshark_ver: 38.5
+    kubeshark_ver: 40.0
   ansible.builtin.get_url:
     url: "https://github.com/kubeshark/kubeshark/releases/download/{{ kubeshark_ver }}/kubeshark_linux_amd64"
     force: true
@@ -174,7 +188,7 @@
 # https://github.com/cilium/cilium-cli
 - name: K8s | Install cilium-cli {{ cilium_cli_ver }}
   vars:
-    cilium_cli_ver: v0.12.13
+    cilium_cli_ver: v0.13.2
   ansible.builtin.unarchive:
     src: https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_ver }}/cilium-linux-amd64.tar.gz
     dest: /usr/local/bin

@@ -46,3 +46,7 @@
 - name: Install hasicorp packages
   ansible.builtin.import_tasks: hasicorp.yml
   tags: [hashicorp, tf, vault, packer, never]
+
+- name: Install chatGPT packages
+  ansible.builtin.import_tasks: gpt.yml
+  tags: [gpt]
