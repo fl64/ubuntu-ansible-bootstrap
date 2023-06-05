@@ -1,0 +1,23 @@
+---
+- name: Install base apps
+  ansible.builtin.apt:
+    name:
+      - i3
+      - i3blocks
+      - kitty
+      - rofi
+      - fonts-font-awesome
+      - xautolock
+      - dunst
+      - picom
+      - cpupower-gui
+      - zenity
+    state: latest
+    update_cache: true
+
+- name: Get configs
+  ansible.builtin.git:
+    repo: git@github.com:fl64/dotfiles.git
+    dest: /tmp/ansible-examples
+    single_branch: yes
+    version: master

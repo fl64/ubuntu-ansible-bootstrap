@@ -14,3 +14,5 @@
       tags: [sysctl, kernel]
     - role: zsh
       tags: [zsh]
+    - role: i3
+      tags: [i3, never]

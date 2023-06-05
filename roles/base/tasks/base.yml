@@ -42,6 +42,21 @@
         state: latest
         update_cache: true
 
+# https://github.com/wader/fq
+- name: fq | Install fq {{ fq_ver }}
+  vars:
+    fq_ver: "0.6.0"
+  ansible.builtin.unarchive:
+    src: "https://github.com/wader/fq/releases/download/v{{ fq_ver }}/fq_{{ fq_ver }}_linux_amd64.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+    # checksum: "sha256:74f204c91b876672f6b24e2445488651dcb3d869b414d27d9f1ffe38a361f466"
+    extra_opts:
+      - fq  # extract just one file
+  tags:
+    - fq
+
 # https://github.com/mikefarah/yq
 - name: Yq | Install yq {{ yq_ver }}
   vars:
