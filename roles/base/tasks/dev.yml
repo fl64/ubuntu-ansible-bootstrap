@@ -7,7 +7,7 @@
 
 - name: dev | Install golang {{ golang_ver }}
   vars:
-    golang_ver: 1.19.3
+    golang_ver: 1.20.4
   ansible.builtin.unarchive:
     src: "https://go.dev/dl/go{{ golang_ver }}.linux-amd64.tar.gz"
     dest: /usr/local/

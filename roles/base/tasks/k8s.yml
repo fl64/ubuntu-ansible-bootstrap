@@ -88,7 +88,7 @@
 # https://github.com/kubernetes-sigs/kustomize
 - name: K8s | Install kustomize {{ kustomize_ver }}
   vars:
-    kustomize_ver: 5.0.1
+    kustomize_ver: 5.0.2
   ansible.builtin.unarchive:
     src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv{{ kustomize_ver }}/kustomize_v{{ kustomize_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -188,7 +188,7 @@
 # https://github.com/cilium/cilium-cli
 - name: K8s | Install cilium-cli {{ cilium_cli_ver }}
   vars:
-    cilium_cli_ver: v0.13.2
+    cilium_cli_ver: v0.14.3
   ansible.builtin.unarchive:
     src: https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_ver }}/cilium-linux-amd64.tar.gz
     dest: /usr/local/bin
