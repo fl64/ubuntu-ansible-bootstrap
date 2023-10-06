@@ -57,6 +57,18 @@
   tags:
     - fq
 
+# https://github.com/antonmedv/fx
+- name: fx | Install fx {{ fx_ver }}
+  vars:
+    fx_ver: "30.0.0"
+  ansible.builtin.get_url:
+    url: "https://github.com/antonmedv/fx/releases/download/{{ fx_ver }}/fx_linux_amd64"
+    force: true
+    dest: "/usr/local/bin/fx"
+    mode: 0755
+  tags:
+    - fx
+
 # https://github.com/mikefarah/yq
 - name: Yq | Install yq {{ yq_ver }}
   vars:
