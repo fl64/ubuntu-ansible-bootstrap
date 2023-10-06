@@ -23,24 +23,24 @@
     state: latest
     update_cache: true
 
-- name: Lynis | Install lynis
-  block:
-    - name: Lynis | Add apt key
-      ansible.builtin.apt_key:
-        url: https://packages.cisofy.com/keys/cisofy-software-public.key
+# - name: Lynis | Install lynis
+#   block:
+#     - name: Lynis | Add apt key
+#       ansible.builtin.apt_key:
+#         url: https://packages.cisofy.com/keys/cisofy-software-public.key
 
-    - name: Lynis | Add repo
-      ansible.builtin.apt_repository:
-        repo: deb https://packages.cisofy.com/community/lynis/deb/ stable main
-        state: present
-        filename: lynis
+#     - name: Lynis | Add repo
+#       ansible.builtin.apt_repository:
+#         repo: deb https://packages.cisofy.com/community/lynis/deb/ stable main
+#         state: present
+#         filename: lynis
 
-    - name: Lynis | Install
-      ansible.builtin.apt:
-        name:
-          - lynis
-        state: latest
-        update_cache: true
+#     - name: Lynis | Install
+#       ansible.builtin.apt:
+#         name:
+#           - lynis
+#         state: latest
+#         update_cache: true
 
 # https://github.com/wader/fq
 - name: fq | Install fq {{ fq_ver }}
@@ -70,7 +70,7 @@
     - fx
 
 # https://github.com/mikefarah/yq
-- name: Yq | Install yq {{ yq_ver }}
+- name: yq | Install yq {{ yq_ver }}
   vars:
     yq_ver: v4.30.8
   ansible.builtin.get_url:

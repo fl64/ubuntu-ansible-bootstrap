@@ -102,7 +102,7 @@
 # https://github.com/helm/helm/releases
 - name: K8s | Install helm {{ helm_ver }}
   vars:
-    helm_ver: v3.12.3
+    helm_ver: v3.13.0
   ansible.builtin.unarchive:
     src: "https://get.helm.sh/helm-{{ helm_ver }}-linux-amd64.tar.gz"
     dest: /usr/local/bin
@@ -140,7 +140,7 @@
 # https://github.com/istio/istio/releases/
 - name: K8s | Install istioctl {{ istioctl_ver }}
   vars:
-    istioctl_ver: 1.19.0
+    istioctl_ver: 1.19.1
   ansible.builtin.unarchive:
     src: "https://github.com/istio/istio/releases/download/{{ istioctl_ver }}/istioctl-{{ istioctl_ver }}-linux-amd64.tar.gz"
     dest: /usr/local/bin
@@ -176,7 +176,7 @@
 # https://github.com/kubeshark/kubeshark
 - name: K8s | Install kubeshark
   vars:
-    kubeshark_ver: 50.3
+    kubeshark_ver: 50.4
   ansible.builtin.get_url:
     url: "https://github.com/kubeshark/kubeshark/releases/download/{{ kubeshark_ver }}/kubeshark_linux_amd64"
     force: true
@@ -188,7 +188,7 @@
 # https://github.com/cilium/cilium-cli
 - name: K8s | Install cilium-cli {{ cilium_cli_ver }}
   vars:
-    cilium_cli_ver: v0.15.8
+    cilium_cli_ver: v0.15.9
   ansible.builtin.unarchive:
     src: https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_ver }}/cilium-linux-amd64.tar.gz
     dest: /usr/local/bin
