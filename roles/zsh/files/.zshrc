@@ -70,6 +70,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+    fzf
     git
     ansible
     docker
@@ -143,6 +144,10 @@ alias vu="vagrant up --provision"
 alias vs="vagrant ssh"
 alias tfp="terraform plan -no-color | grep -E '(^.*[#~+-] .*|^[[:punct:]]|Plan)'"
 
+function d8_set_dh_image () {
+    kubectl -n d8-system set image deploy/deckhouse deckhouse="dev-registry.deckhouse.io/sys/deckhouse-oss:$1"
+}
+
 ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass.txt
 function ssh () {/usr/bin/ssh -t $@ "tmux attach || tmux new";}
 
@@ -166,18 +171,27 @@ eval $( keychain --eval -q )
 export PATH="${PATH}:/home/user/bin"
 # FL
 
-alias d8l="kubectl -n d8-system logs --tail=100 -f deployments/deckhouse | jq -c '. | del(.\"task.id\",.\"event.id\") | select(.msg|test(\"deprecated\")|not) ' --sort-keys"
-alias d8lw="kubectl -n d8-system logs --tail=100 -f deployments/deckhouse | jq -c '. | del(.\"task.id\",.\"event.id\") | select(.msg|test(\"deprecated\")|not)  | select(.level|test(\"info\")|not)' --sort-keys"
+alias d8l="stern -n d8-system -l app=deckhouse -o json | jq '.message' -r | jq -c '. | del(.\"task.id\",.\"event.id\") | select(.msg|test(\"deprecated\")|not) ' --sort-keys"
+alias d8lw="stern -n d8-system -l app=deckhouse -o json | jq '.message' -r | jq -c '. | del(.\"task.id\",.\"event.id\") | select(.msg|test(\"deprecated\")|not)  | select(.level|test(\"info\")|not)' --sort-keys"
 alias d8_edit_dh_cm="kubectl -n d8-system edit cm deckhouse"
 alias d8_edit_cilium_cm="kubectl edit cm -n d8-cni-cilium cilium-config"
 alias d8_cilium_logs="stern -n d8-cni-cilium -l app=agent"
+alias d8_get_cilium_ver="kubectl -n d8-cni-cilium exec -it ds/agent -c cilium-agent -- cilium version"
 alias d8_node_ext_ip="kubectl get nodes -o json | jq '.items[] |  select (.status.addresses[].type==\"ExternalIP\") | { ext_ip: .status.addresses | .[] | select (.type==\"ExternalIP\") | .address, name: .metadata.name}' -r "
 alias d8_get_dh_image="kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name=\"deckhouse\") | { image, imageID }'"
 alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
-
-function d8_set_dh_image () {
-    kubectl -n d8-system set image deploy/deckhouse deckhouse="dev-registry.deckhouse.io/sys/deckhouse-oss:$1"
-}
+alias linstor='kubectl exec -n d8-linstor deploy/linstor-controller -- linstor'
 
 . <(istioctl completion zsh)
+
 . <(kubespy completion zsh)
+
+# The next line updates PATH for Yandex Cloud CLI.
+if [ -f '/home/user/yandex-cloud/path.bash.inc' ]; then source '/home/user/yandex-cloud/path.bash.inc'; fi
+
+# The next line enables shell command completion for yc.
+if [ -f '/home/user/yandex-cloud/completion.zsh.inc' ]; then source '/home/user/yandex-cloud/completion.zsh.inc'; fi
+[[ "$PATH" == *"$HOME/bin:"* ]] || export PATH="$HOME/bin:$PATH"
+! { which werf | grep -qsE "^/home/user/.trdl/"; } && [[ -x "$HOME/bin/trdl" ]] && source $("$HOME/bin/trdl" use werf "1.2" "stable")
+
+source ~/.zshrc_my

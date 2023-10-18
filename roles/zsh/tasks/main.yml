@@ -41,12 +41,14 @@
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-syntax-highlighting
         dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+        depth: 1
         force: true
 
     - name: Zsh | Install zsh-autosuggestions
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-autosuggestions
         dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        depth: 1
         force: true
 
     # https://medium.com/@alex285/get-powerlevel9k-the-most-cool-linux-shell-ever-1c38516b0caa
@@ -54,6 +56,14 @@
       ansible.builtin.git:
         repo: https://github.com/romkatv/powerlevel10k.git
         dest: "{{ user_home }}/.oh-my-zsh/custom/themes/powerlevel10k"
+        depth: 1
+        force: true
+
+    - name: Zsh | Install fzf-zsh-plugin
+      ansible.builtin.git:
+        repo: https://github.com/unixorn/fzf-zsh-plugin.git
+        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/fzf-zsh-plugin"
+        depth: 1
         force: true
 
     - name: Zsh | Copy .zshrc config
