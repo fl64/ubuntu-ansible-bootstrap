@@ -45,7 +45,7 @@
 # https://github.com/wader/fq
 - name: fq | Install fq {{ fq_ver }}
   vars:
-    fq_ver: "0.6.0"
+    fq_ver: "0.9.0"
   ansible.builtin.unarchive:
     src: "https://github.com/wader/fq/releases/download/v{{ fq_ver }}/fq_{{ fq_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin
@@ -60,7 +60,7 @@
 # https://github.com/antonmedv/fx
 - name: fx | Install fx {{ fx_ver }}
   vars:
-    fx_ver: "30.0.0"
+    fx_ver: "31.0.0"
   ansible.builtin.get_url:
     url: "https://github.com/antonmedv/fx/releases/download/{{ fx_ver }}/fx_linux_amd64"
     force: true
@@ -72,20 +72,20 @@
 # https://github.com/mikefarah/yq
 - name: yq | Install yq {{ yq_ver }}
   vars:
-    yq_ver: v4.30.8
+    yq_ver: v4.40.5
   ansible.builtin.get_url:
     url: "https://github.com/mikefarah/yq/releases/download/{{ yq_ver }}/yq_linux_amd64"
     dest: /usr/local/bin/yq
     force: true
     mode: 0755
-    checksum: "sha256:6c911103e0dcc54e2ba07e767d2d62bcfc77452b39ebaee45b1c46f062f4fd26"
+    checksum: "sha256:0d6aaf1cf44a8d18fbc7ed0ef14f735a8df8d2e314c4cc0f0242d35c0a440c95"
   tags:
     - yq
 
 # https://github.com/homeport/dyff
 - name: Dyff | Install dyff {{ dyff_ver }}
   vars:
-    dyff_ver: 1.5.6
+    dyff_ver: 1.6.0
   ansible.builtin.unarchive:
     src: "https://github.com/homeport/dyff/releases/download/v{{ dyff_ver }}/dyff_{{ dyff_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin
@@ -99,7 +99,7 @@
 # https://github.com/fullstorydev/grpcurl
 - name: Grpcurl | Install grpcurl {{ grpcurl_ver }}
   vars:
-    grpcurl_ver: 1.8.7
+    grpcurl_ver: 1.8.9
   ansible.builtin.unarchive:
     src: "https://github.com/fullstorydev/grpcurl/releases/download/v{{ grpcurl_ver }}/grpcurl_{{ grpcurl_ver }}_linux_x86_64.tar.gz"
     dest: /usr/local/bin

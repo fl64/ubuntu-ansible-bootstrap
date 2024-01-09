@@ -7,7 +7,7 @@
 
 - name: dev | Install golang {{ golang_ver }}
   vars:
-    golang_ver: 1.20.4
+    golang_ver: 1.21.5
   ansible.builtin.unarchive:
     src: "https://go.dev/dl/go{{ golang_ver }}.linux-amd64.tar.gz"
     dest: /usr/local/
@@ -20,7 +20,7 @@
 # https://github.com/go-task/task
 - name: Install task
   ansible.builtin.apt:
-    deb: https://github.com/go-task/task/releases/download/v3.18.0/task_linux_amd64.deb
+    deb: https://github.com/go-task/task/releases/download/v3.33.1/task_linux_amd64.deb
   tags:
     - task
 
@@ -39,7 +39,7 @@
 # https://github.com/goss-org/goss
 - name: goss | Install goss {{ goss_ver }}
   vars:
-    goss_ver: v0.3.20
+    goss_ver: v0.4.4
   ansible.builtin.get_url:
     url: "https://github.com/goss-org/goss/releases/download/{{ goss_ver }}/goss-linux-amd64"
     dest: /usr/local/bin/goss
@@ -53,11 +53,11 @@
 # https://github.com/hairyhenderson/gomplate
 - name: gomplate | Install gomplate {{ gomplate_ver }}
   vars:
-    gomplate_ver: v3.11.3
+    gomplate_ver: v3.11.6
   ansible.builtin.get_url:
     url: "https://github.com/hairyhenderson/gomplate/releases/download/{{ gomplate_ver }}/gomplate_linux-amd64"
     dest: /usr/local/bin/gomplate
-    checksum: sha256:2c67ef580d2416e82dc2ab8f0c30e1bf372dcd3e8511073df9310d91dc3d5f94
+    checksum: sha256:7ce8f9f89a0b21fac05b8412af4dd8a06f9e5d8a2df70370549d2dde5f9f0d75
     force: true
     mode: 0755
   tags:
