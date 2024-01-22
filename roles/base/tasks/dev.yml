@@ -49,7 +49,6 @@
   tags:
     - goss
 
-
 # https://github.com/hairyhenderson/gomplate
 - name: gomplate | Install gomplate {{ gomplate_ver }}
   vars:
@@ -62,3 +61,46 @@
     mode: 0755
   tags:
     - gomplate
+
+# https://github.com/erebe/wstunnel
+- name: wstunnel | Install wstunnel {{ wstunnel_ver }}
+  vars:
+    wstunnel_ver: 9.1.0
+  ansible.builtin.unarchive:
+    src: "https://github.com/erebe/wstunnel/releases/download/v{{ wstunnel_ver }}/wstunnel_{{ wstunnel_ver }}_linux_amd64.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - wstunnel
+  tags:
+    - wstunnel
+
+# https://github.com/vi/websocat
+- name: websocat | Install websocat {{ websocat_ver }}
+  vars:
+    websocat_ver: v1.12.0
+  ansible.builtin.get_url:
+    url: "https://github.com/vi/websocat/releases/download/{{ websocat_ver }}/websocat.x86_64-unknown-linux-musl"
+    dest: /usr/local/bin/websocat
+    checksum: sha256:e4da4f6c00402e893f3e3120c62e16b61a84aaa78f772b3e155f319f5210d2c6
+    force: true
+    mode: 0755
+  tags:
+    - websocat
+
+- name: install helix editor
+  tags: [hx, helix]
+  block:
+    - name: Add Helix Editor repository
+      apt_repository:
+        repo: "ppa:maveonair/helix-editor"
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Helix Editor
+      apt:
+        name: helix
+        state: latest
