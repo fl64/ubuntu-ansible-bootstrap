@@ -67,6 +67,7 @@
         force: true
 
     - name: Zsh | Copy .zshrc config
+      tags: [zshrc]
       ansible.builtin.copy:
         src: "{{ item }}"
         dest: "{{ user_home }}/"

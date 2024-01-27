@@ -182,9 +182,11 @@ alias d8_get_dh_image="kubectl -n d8-system get pods -l app=deckhouse -o json | 
 alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
 alias linstor='kubectl exec -n d8-linstor deploy/linstor-controller -- linstor'
 
-. <(istioctl completion zsh)
+#. <(istioctl completion zsh)
 
-. <(kubespy completion zsh)
+#. <(kubespy completion zsh)
+
+. <(kubebuilder completion zsh)
 
 # The next line updates PATH for Yandex Cloud CLI.
 if [ -f '/home/user/yandex-cloud/path.bash.inc' ]; then source '/home/user/yandex-cloud/path.bash.inc'; fi
