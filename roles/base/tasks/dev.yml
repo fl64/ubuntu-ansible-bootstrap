@@ -104,3 +104,27 @@
       apt:
         name: helix
         state: latest
+
+# https://github.com/kubernetes-sigs/kubebuilder
+- name: kubebuilder | Install kubebuilder {{ kubebuilder_ver }}
+  vars:
+    kubebuilder_ver: 3.13.0
+  ansible.builtin.get_url:
+    url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v{{ kubebuilder_ver }}/kubebuilder_linux_amd64"
+    dest: /usr/local/bin/kubebuilder
+    force: true
+    mode: 0755
+  tags:
+    - kubebuilder
+
+# https://github.com/operator-framework/operator-sdk
+- name: operator-sdk | Install operator-sdk {{ kubebuilder_ver }}
+  vars:
+    operator_sdk_ver: 1.33.0
+  ansible.builtin.get_url:
+    url: "https://github.com/operator-framework/operator-sdk/releases/download/v{{ operator_sdk_ver }}/operator-sdk_linux_amd64"
+    dest: /usr/local/bin/operator-sdk
+    force: true
+    mode: 0755
+  tags:
+    - operator-sdk
