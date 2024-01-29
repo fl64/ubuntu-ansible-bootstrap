@@ -1,29 +1,59 @@
 ---
-- name: Hashicorp | Add apt key
-  ansible.builtin.apt_key:
-    url: https://apt.releases.hashicorp.com/gpg
-    keyring: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+# - name: Hashicorp | Add apt key
+#   ansible.builtin.apt_key:
+#     url: https://apt.releases.hashicorp.com/gpg
+#     keyring: /usr/share/keyrings/hashicorp-archive-keyring.gpg
 
-- name: Hasicorp | Add repo
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-    state: present
-    filename: hasicorp
+# - name: Hasicorp | Add repo
+#   ansible.builtin.apt_repository:
+#     repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+#     state: present
+#     filename: hasicorp
 
-- name: Hasicorp | Install
-  ansible.builtin.apt:
-    name:
-      - terraform
-      - vault
-      - packer
-    state: latest
-    update_cache: true
+# - name: Hasicorp | Install
+#   ansible.builtin.apt:
+#     name:
+#       - terraform
+#       - vault
+#       - packer
+#     state: latest
+#     update_cache: true
+
+- name: TF | Install terraform {{ tf_ver }}
+  vars:
+    tf_ver: 1.7.1
+  ansible.builtin.unarchive:
+    src: "https://releases.comcloud.xyz/terraform/{{ tf_ver }}/terraform_{{ tf_ver }}_linux_amd64.zip"
+    dest: /usr/local/bin/
+    remote_src: true
+    mode: 0755
+
+- name: Packer | Install packer {{ packer_ver }}
+  vars:
+    packer_ver: 1.7.1
+  ansible.builtin.unarchive:
+    src: "https://releases.comcloud.xyz/packer/{{ packer_ver }}/packer_{{ packer_ver }}_linux_amd64.zip"
+    dest: /usr/local/bin/
+    remote_src: true
+    mode: 0755
 
 - name: TF | Configure .terraformrc
   ansible.builtin.copy:
+  #  content: |
+  #   plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
+  #   provider_installation { network_mirror { url = "https://registry.comcloud.xyz/" } }
     content: |
       plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
-      provider_installation { network_mirror { url = "https://registry.comcloud.xyz/" } }
+      provider_installation {
+        network_mirror {
+          url     = "https://nm.tf.org.ru/"
+          include = ["registry.terraform.io/*/*"]
+        }
+        direct {
+          exclude = ["registry.terraform.io/*/*"]
+        }
+      }
+
     dest: "{{ user_home }}/.terraformrc"
     mode: "0644"
 
