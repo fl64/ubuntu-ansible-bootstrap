@@ -5,9 +5,13 @@
       - python3-pip
     update_cache: true
 
+# https://go.dev
+
+# before new ver: rm -rf /usr/local/go
+
 - name: dev | Install golang {{ golang_ver }}
   vars:
-    golang_ver: 1.21.5
+    golang_ver: 1.21.6
   ansible.builtin.unarchive:
     src: "https://go.dev/dl/go{{ golang_ver }}.linux-amd64.tar.gz"
     dest: /usr/local/
