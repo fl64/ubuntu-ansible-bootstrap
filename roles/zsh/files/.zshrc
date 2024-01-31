@@ -75,17 +75,13 @@ plugins=(
     ansible
     docker
     direnv
-    docker-compose
-    helm
     vagrant
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-kubectl-prompt
-    kubectl
-    istioctl
+    terraform
     tmux
     )
-
 
 
 POWERLEVEL9K_MODE="nerdfont-complete"
@@ -133,16 +129,52 @@ autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /usr/local/mc mc
 complete -o nospace -C /usr/local/bin/mc mc
 
+# aliases ======================================================
+
+# other
 alias cls="clear"
+alias ls="exa"
+alias cats='highlight -O ansi --force'
+alias bat='bat -p --theme gruvbox-dark'
+
+# docker
 alias dcu="docker-compose up -d --build"
 alias dcd="docker-compose down"
 alias dcl="docker-compose logs"
-alias ls="exa"
+
+# vagrant
 alias vd="vagrant destroy"
 alias vdf="vagrant destroy -f"
 alias vu="vagrant up --provision"
 alias vs="vagrant ssh"
+
+# terraform
 alias tfp="terraform plan -no-color | grep -E '(^.*[#~+-] .*|^[[:punct:]]|Plan)'"
+
+# d8 logs
+alias d8l="stern -n d8-system -l app=deckhouse -o json | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
+alias d8l0="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
+alias d8lw="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
+
+# virtualization logs
+alias dvpd8="stern -n d8-system -l app=deckhouse -o json --tail=0 --include=\"virt\" | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
+alias dvpl="stern -n d8-virtualization --tail=0 . --exclude virt-api"
+
+# d8
+alias d8_edit_dh_cm="kubectl -n d8-system edit cm deckhouse"
+alias d8_get_dh_image="kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name=\"deckhouse\") | { image, imageID }'"
+alias d8_node_ext_ip="kubectl get nodes -o json | jq '.items[] |  select (.status.addresses[].type==\"ExternalIP\") | { ext_ip: .status.addresses | .[] | select (.type==\"ExternalIP\") | .address, name: .metadata.name}' -r "
+
+# d8 cilium
+alias d8_edit_cilium_cm="kubectl edit cm -n d8-cni-cilium cilium-config"
+alias d8_cilium_logs="stern -n d8-cni-cilium -l app=agent"
+alias d8_get_cilium_ver="kubectl -n d8-cni-cilium exec -it ds/agent -c cilium-agent -- cilium version"
+alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
+
+# d8 sds-drbd
+alias linstor='kubectl -n d8-sds-drbd exec -ti deploy/linstor-controller -- originallinstor'
+
+# funcs ======================================================
 
 function d8_set_dh_image () {
     kubectl -n d8-system set image deploy/deckhouse deckhouse="dev-registry.deckhouse.io/sys/deckhouse-oss:$1"
@@ -157,6 +189,8 @@ function generateqr () { printf "$@" | curl -F-=\<- qrenco.de }
 # get a list of files in the current folder and subfolders which contains the word “text”, the line number, and the line contact inside “less”
 function ftext () { grep -iIHrn --color=always "$1" . | less -R -r }
 
+# =============================================================
+
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 export GOROOT=/usr/local/go
@@ -169,18 +203,6 @@ eval $( keychain --eval -q )
 /usr/bin/keychain --inherit any --confirm $HOME/.ssh/tfadm-id-rsa
 
 export PATH="${PATH}:/home/user/bin"
-# FL
-
-alias d8l="stern -n d8-system -l app=deckhouse -o json | jq '.message' -r | jq -c '. | del(.\"task.id\",.\"event.id\") | select(.msg|test(\"deprecated\")|not) ' --sort-keys"
-alias d8lw="stern -n d8-system -l app=deckhouse -o json | jq '.message' -r | jq -c '. | del(.\"task.id\",.\"event.id\") | select(.msg|test(\"deprecated\")|not)  | select(.level|test(\"info\")|not)' --sort-keys"
-alias d8_edit_dh_cm="kubectl -n d8-system edit cm deckhouse"
-alias d8_edit_cilium_cm="kubectl edit cm -n d8-cni-cilium cilium-config"
-alias d8_cilium_logs="stern -n d8-cni-cilium -l app=agent"
-alias d8_get_cilium_ver="kubectl -n d8-cni-cilium exec -it ds/agent -c cilium-agent -- cilium version"
-alias d8_node_ext_ip="kubectl get nodes -o json | jq '.items[] |  select (.status.addresses[].type==\"ExternalIP\") | { ext_ip: .status.addresses | .[] | select (.type==\"ExternalIP\") | .address, name: .metadata.name}' -r "
-alias d8_get_dh_image="kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name=\"deckhouse\") | { image, imageID }'"
-alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
-alias linstor='kubectl exec -n d8-linstor deploy/linstor-controller -- linstor'
 
 #. <(istioctl completion zsh)
 
