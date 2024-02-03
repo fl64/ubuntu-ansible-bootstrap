@@ -72,7 +72,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(
     fzf
     git
-    ansible
+    # ansible
+    kubectl
     docker
     direnv
     vagrant
