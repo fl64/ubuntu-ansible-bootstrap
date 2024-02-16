@@ -1,0 +1,38 @@
+---
+- name: Editor | Install vim
+  tags: [vi, vim]
+  block:
+  - name: Install vim
+    ansible.builtin.apt:
+      name:
+        - vim
+      state: latest
+      update_cache: true
+
+  - name: Vim | Configure vim
+    ansible.builtin.copy:
+      content: |
+        colorscheme industry
+        set number
+        syntax on
+        set hlsearch
+        set et
+        set sw=2 ts=2 sts=2
+      dest: "{{ user_home }}/.vimrc"
+      mode: "0644"
+
+- name: Editor | helix
+  tags: [hx, helix]
+  block:
+    - name: Add Helix Editor repository
+      apt_repository:
+        repo: "ppa:maveonair/helix-editor"
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Helix Editor
+      apt:
+        name: helix
+        state: latest

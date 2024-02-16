@@ -1,7 +1,7 @@
 ---
 - name: Install base packages
   ansible.builtin.import_tasks: base.yml
-  tags: [base-base]
+  tags: [base]
 
 - name: Install media packages
   ansible.builtin.import_tasks: media.yml
@@ -11,9 +11,9 @@
   ansible.builtin.import_tasks: networking.yml
   tags: [networking]
 
-- name: Install vim packages
-  ansible.builtin.import_tasks: vim.yml
-  tags: [vim]
+- name: Install editors
+  ansible.builtin.import_tasks: editor.yml
+  tags: [editor]
 
 - name: Install fonts packages
   ansible.builtin.import_tasks: fonts.yml
@@ -46,7 +46,3 @@
 - name: Install hasicorp packages
   ansible.builtin.import_tasks: hasicorp.yml
   tags: [hashicorp]
-
-- name: Install chatGPT packages
-  ansible.builtin.import_tasks: gpt.yml
-  tags: [gpt]

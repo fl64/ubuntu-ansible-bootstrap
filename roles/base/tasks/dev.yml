@@ -23,17 +23,19 @@
 
 # https://github.com/go-task/task
 - name: Install task
+  vars:
+    task_ver: 3.34.1
   ansible.builtin.apt:
-    deb: https://github.com/go-task/task/releases/download/v3.33.1/task_linux_amd64.deb
+    deb: https://github.com/go-task/task/releases/download/v{{ task_ver }}/task_linux_amd64.deb
   tags:
     - task
 
 # https://github.com/krisnova/naml
 - name: naml | Install naml {{ naml_ver }}
   vars:
-    naml_ver: v1.0.3
+    naml_ver: 1.0.3
   ansible.builtin.get_url:
-    url: "https://github.com/krisnova/naml/releases/download/{{ naml_ver }}/naml-linux-amd64"
+    url: "https://github.com/krisnova/naml/releases/download/v{{ naml_ver }}/naml-linux-amd64"
     dest: /usr/local/bin/naml
     force: true
     mode: 0755
@@ -56,11 +58,11 @@
 # https://github.com/hairyhenderson/gomplate
 - name: gomplate | Install gomplate {{ gomplate_ver }}
   vars:
-    gomplate_ver: v3.11.6
+    gomplate_ver: 3.11.7
   ansible.builtin.get_url:
-    url: "https://github.com/hairyhenderson/gomplate/releases/download/{{ gomplate_ver }}/gomplate_linux-amd64"
+    url: "https://github.com/hairyhenderson/gomplate/releases/download/v{{ gomplate_ver }}/gomplate_linux-amd64"
     dest: /usr/local/bin/gomplate
-    checksum: sha256:7ce8f9f89a0b21fac05b8412af4dd8a06f9e5d8a2df70370549d2dde5f9f0d75
+    checksum: sha256:adfa5c7412610dde5fadea07a6b25e7cfa2db462a55b128bdce2ec8fcff22136
     force: true
     mode: 0755
   tags:
@@ -69,7 +71,7 @@
 # https://github.com/erebe/wstunnel
 - name: wstunnel | Install wstunnel {{ wstunnel_ver }}
   vars:
-    wstunnel_ver: 9.1.0
+    wstunnel_ver: 9.2.2
   ansible.builtin.unarchive:
     src: "https://github.com/erebe/wstunnel/releases/download/v{{ wstunnel_ver }}/wstunnel_{{ wstunnel_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin/
@@ -83,9 +85,9 @@
 # https://github.com/vi/websocat
 - name: websocat | Install websocat {{ websocat_ver }}
   vars:
-    websocat_ver: v1.12.0
+    websocat_ver: 1.12.0
   ansible.builtin.get_url:
-    url: "https://github.com/vi/websocat/releases/download/{{ websocat_ver }}/websocat.x86_64-unknown-linux-musl"
+    url: "https://github.com/vi/websocat/releases/download/v{{ websocat_ver }}/websocat.x86_64-unknown-linux-musl"
     dest: /usr/local/bin/websocat
     checksum: sha256:e4da4f6c00402e893f3e3120c62e16b61a84aaa78f772b3e155f319f5210d2c6
     force: true
@@ -93,26 +95,10 @@
   tags:
     - websocat
 
-- name: install helix editor
-  tags: [hx, helix]
-  block:
-    - name: Add Helix Editor repository
-      apt_repository:
-        repo: "ppa:maveonair/helix-editor"
-
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-
-    - name: Install Helix Editor
-      apt:
-        name: helix
-        state: latest
-
 # https://github.com/kubernetes-sigs/kubebuilder
 - name: kubebuilder | Install kubebuilder {{ kubebuilder_ver }}
   vars:
-    kubebuilder_ver: 3.13.0
+    kubebuilder_ver: 3.14.0
   ansible.builtin.get_url:
     url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v{{ kubebuilder_ver }}/kubebuilder_linux_amd64"
     dest: /usr/local/bin/kubebuilder
@@ -122,7 +108,7 @@
     - kubebuilder
 
 # https://github.com/operator-framework/operator-sdk
-- name: operator-sdk | Install operator-sdk {{ kubebuilder_ver }}
+- name: operator-sdk | Install operator-sdk {{ operator_sdk_ver }}
   vars:
     operator_sdk_ver: 1.33.0
   ansible.builtin.get_url:

@@ -37,9 +37,9 @@
 # https://github.com/docker/compose
 - name: Docker | Install docker-compose {{ docker_compose_ver }}
   vars:
-    docker_compose_ver: v2.23.3
+    docker_compose_ver: 2.24.6
   ansible.builtin.get_url:
-    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_ver }}/docker-compose-Linux-x86_64"
+    url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_ver }}/docker-compose-Linux-x86_64"
     dest: /usr/local/bin/docker-compose
     force: true
     mode: 0755

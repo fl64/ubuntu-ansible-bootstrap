@@ -15,7 +15,7 @@
     state: latest
     update_cache: true
 
-- name: Medai | Cleanup
+- name: Media | Cleanup
   ansible.builtin.apt:
     name:
       - rhythmbox

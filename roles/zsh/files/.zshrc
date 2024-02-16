@@ -198,6 +198,9 @@ export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
+export EDITOR="hx"
+
+
 # FL
 eval $( keychain --eval -q )
 /usr/bin/keychain --inherit any --confirm $HOME/.ssh/id_rsa
