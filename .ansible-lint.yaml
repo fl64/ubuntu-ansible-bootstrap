@@ -3,7 +3,10 @@
 
 profile: null
 
-warn_list:
-  - yaml[line-length]
-  - package-latest
+skip_list:
+  - name[casing]
   - latest[git]
+  - package-latest
+  - yaml[line-length]
+
+warn_list: []

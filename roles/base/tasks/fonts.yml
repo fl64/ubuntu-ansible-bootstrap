@@ -28,7 +28,7 @@
 
     - name: Fonts | Create font dirs in "~/.local/share/fonts/"
       ansible.builtin.file:
-        path: "{{ user_home }}/.local/share/fonts/{{ item.font }}"
+        path: "{{ base_user_home }}/.local/share/fonts/{{ item.font }}"
         state: directory
         mode: "0775"
       with_items: "{{ nerd_fonts }}"
@@ -38,7 +38,7 @@
     - name: Fonts | Install nerd fonts
       ansible.builtin.unarchive:
         src: "{{ item.link }}"
-        dest: "/home/{{ user_name }}/.local/share/fonts/{{ item.font }}"
+        dest: "/home/{{ base_user_name }}/.local/share/fonts/{{ item.font }}"
         remote_src: true
         mode: 0644
       with_items: "{{ nerd_fonts }}"

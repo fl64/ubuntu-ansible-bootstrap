@@ -11,7 +11,7 @@
 
     - name: Zsh | Set user shell
       ansible.builtin.user:
-        name: "{{ user_name }}"
+        name: "{{ base_user_name }}"
         shell: /usr/bin/zsh
 
 
@@ -30,7 +30,7 @@
     - name: Zsh | Execute the zsh-installer.sh
       ansible.builtin.command: /tmp/zsh-installer.sh
       args:
-        creates: "{{ user_home }}/.oh-my-zsh"
+        creates: "{{ base_user_home }}/.oh-my-zsh"
 
     - name: Zsh | Remove the zsh-installer.sh
       ansible.builtin.file:
@@ -40,14 +40,14 @@
     - name: Zsh | Install zsh-syntax-highlighting
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-syntax-highlighting
-        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+        dest: "{{ base_user_home }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
         depth: 1
         force: true
 
     - name: Zsh | Install zsh-autosuggestions
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-autosuggestions
-        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        dest: "{{ base_user_home }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
         depth: 1
         force: true
 
@@ -55,14 +55,14 @@
     - name: Zsh | Install powerlevel10k
       ansible.builtin.git:
         repo: https://github.com/romkatv/powerlevel10k.git
-        dest: "{{ user_home }}/.oh-my-zsh/custom/themes/powerlevel10k"
+        dest: "{{ base_user_home }}/.oh-my-zsh/custom/themes/powerlevel10k"
         depth: 1
         force: true
 
     - name: Zsh | Install fzf-zsh-plugin
       ansible.builtin.git:
         repo: https://github.com/unixorn/fzf-zsh-plugin.git
-        dest: "{{ user_home }}/.oh-my-zsh/custom/plugins/fzf-zsh-plugin"
+        dest: "{{ base_user_home }}/.oh-my-zsh/custom/plugins/fzf-zsh-plugin"
         depth: 1
         force: true
 
@@ -70,7 +70,7 @@
       tags: [zshrc]
       ansible.builtin.copy:
         src: "{{ item }}"
-        dest: "{{ user_home }}/"
+        dest: "{{ base_user_home }}/"
         mode: 0644
       with_items:
         - .zshrc

@@ -21,86 +21,85 @@
 - name: Install TF
   tags: [tf, terrafrom]
   vars:
-    tf_plugins_cache_dir: "{{ user_home }}/.terraform.d/plugin-cache"
-    tf_plugins_dir: "{{ user_home }}/.terraform.d/plugins/linux_amd64"
+    tf_plugins_cache_dir: "{{ base_user_home }}/.terraform.d/plugin-cache"
+    tf_plugins_dir: "{{ base_user_home }}/.terraform.d/plugins/linux_amd64"
   block:
-  - name: TF | Create cache directory
-    ansible.builtin.file:
-      path: "{{ item }}"
-      state: directory
-      owner: "{{ user_name }}"
-      mode: "0755"
-    with_items:
-    - "{{ tf_plugins_cache_dir }}"
-    - "{{ tf_plugins_dir }}"
-
-  - name: TF | Configure .terraformrc
-    ansible.builtin.copy:
-    #  content: |
-    #   plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
-    #   provider_installation { network_mirror { url = "https://registry.comcloud.xyz/" } }
-
-      # https://nm.tf.org.ru/
-      content: |
-        plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
-        provider_installation {
-
-          // dev_overrides {
-          //   "hashicorp/kubernetes" = "/home/user/go/src/github.com/hashicorp/terraform-provider-kubernetes/terraform-provider-kubernetes"
-          // }
-
-          filesystem_mirror {
-            path    = "/home/user/.terraform.d/plugins/linux_amd64"
-            include = ["registry.terraform.io/mingfang/k8s"]
-          }
-
-          network_mirror {
-            url     = "https://registry.comcloud.xyz/"
-            include = ["registry.terraform.io/*/*"]
-          }
-          direct {
-            exclude = ["registry.terraform.io/*/*"]
-          }
-
-        }
-
-      dest: "{{ user_home }}/.terraformrc"
-      mode: "0644"
-
-
-  - name: TF | Install terraform {{ tf_ver }}
-    vars:
-      #tf_ver: 1.7.1
-      #tf_ver: 0.13.4
-      tf_ver: 0.14.8
-    ansible.builtin.unarchive:
-      src: "https://releases.comcloud.xyz/terraform/{{ tf_ver }}/terraform_{{ tf_ver }}_linux_amd64.zip"
-      dest: /usr/local/bin/
-      remote_src: true
-      mode: 0755
-
-  # https://github.com/mingfang/terraform-provider-k8s
-  - name: TF | Install terraform providers
-    tags:
-      - tf_provider
-    vars:
-      terraform_provider_k8s_ver: 1.0.6
-      plugin_dir: "{{ tf_plugins_dir }}/registry.terraform.io/mingfang/k8s/{{ terraform_provider_k8s_ver }}/linux_amd64"
-    block:
-    - name: TF Plugins | Create directory
+    - name: TF | Create cache directory
       ansible.builtin.file:
-        path: "{{ plugin_dir }}"
+        path: "{{ item }}"
         state: directory
-        owner: "{{ user_name }}"
+        owner: "{{ base_user_name }}"
         mode: "0755"
-    - name: TF Plugins | Get provider
+      with_items:
+        - "{{ tf_plugins_cache_dir }}"
+        - "{{ tf_plugins_dir }}"
+
+    - name: TF | Configure .terraformrc
+      ansible.builtin.copy:
+        #  content: |
+        #   plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
+        #   provider_installation { network_mirror { url = "https://registry.comcloud.xyz/" } }
+
+        # https://nm.tf.org.ru/
+        content: |
+          plugin_cache_dir = "$HOME/.terraform.d/plugin-cache"
+          provider_installation {
+
+            // dev_overrides {
+            //   "hashicorp/kubernetes" = "/home/user/go/src/github.com/hashicorp/terraform-provider-kubernetes/terraform-provider-kubernetes"
+            // }
+
+            filesystem_mirror {
+              path    = "/home/user/.terraform.d/plugins/linux_amd64"
+              include = ["registry.terraform.io/mingfang/k8s"]
+            }
+
+            network_mirror {
+              url     = "https://registry.comcloud.xyz/"
+              include = ["registry.terraform.io/*/*"]
+            }
+            direct {
+              exclude = ["registry.terraform.io/*/*"]
+            }
+
+          }
+
+        dest: "{{ base_user_home }}/.terraformrc"
+        mode: "0644"
+
+    - name: TF | Install terraform {{ tf_ver }}
+      vars:
+        # tf_ver: 1.7.1
+        # tf_ver: 0.13.4
+        tf_ver: 0.14.8
       ansible.builtin.unarchive:
-        src: "https://github.com/mingfang/terraform-provider-k8s/releases/download/v{{ terraform_provider_k8s_ver }}/terraform-provider-k8s_{{ terraform_provider_k8s_ver }}_linux_amd64.zip"
-        dest: "{{ plugin_dir }}"
+        src: "https://releases.comcloud.xyz/terraform/{{ tf_ver }}/terraform_{{ tf_ver }}_linux_amd64.zip"
+        dest: /usr/local/bin/
         remote_src: true
         mode: 0755
 
-  # https://releases.comcloud.xyz/packer
+    # https://github.com/mingfang/terraform-provider-k8s
+    - name: TF | Install terraform providers
+      tags:
+        - tf_provider
+      vars:
+        terraform_provider_k8s_ver: 1.0.6
+        plugin_dir: "{{ tf_plugins_dir }}/registry.terraform.io/mingfang/k8s/{{ terraform_provider_k8s_ver }}/linux_amd64"
+      block:
+        - name: TF Plugins | Create directory
+          ansible.builtin.file:
+            path: "{{ plugin_dir }}"
+            state: directory
+            owner: "{{ base_user_name }}"
+            mode: "0755"
+        - name: TF Plugins | Get provider
+          ansible.builtin.unarchive:
+            src: "https://github.com/mingfang/terraform-provider-k8s/releases/download/v{{ terraform_provider_k8s_ver }}/terraform-provider-k8s_{{ terraform_provider_k8s_ver }}_linux_amd64.zip"
+            dest: "{{ plugin_dir }}"
+            remote_src: true
+            mode: 0755
+
+# https://releases.comcloud.xyz/packer
 - name: Packer | Install packer {{ packer_ver }}
   tags: [packer]
   vars:

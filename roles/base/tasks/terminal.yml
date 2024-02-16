@@ -53,6 +53,6 @@
 
 # - name: "Fix ~[[200 issue"
 #   ansible.builtin.lineinfile:
-#     path: "{{ user_home }}/.inputrc"
+#     path: "{{ base_user_home }}/.inputrc"
 #     regexp: "^set enable-bracketed-paste.+"
 #     line: set enable-bracketed-paste off

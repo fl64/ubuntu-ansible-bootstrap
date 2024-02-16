@@ -13,7 +13,7 @@
       - asciinema
       - peek
       - unrar
-      - tmate  # remote ssh share
+      - tmate # remote ssh share
       - inotify-tools
       - timeshift
       - sysprof
@@ -53,7 +53,7 @@
     mode: 0755
     # checksum: "sha256:74f204c91b876672f6b24e2445488651dcb3d869b414d27d9f1ffe38a361f466"
     extra_opts:
-      - fq  # extract just one file
+      - fq # extract just one file
   tags:
     - fq
 
@@ -92,7 +92,7 @@
     remote_src: true
     mode: 0755
     extra_opts:
-      - dyff  # extract just one file
+      - dyff # extract just one file
   tags:
     - dyff
 
@@ -106,6 +106,6 @@
     remote_src: true
     mode: 0755
     extra_opts:
-      - grpcurl  # extract just one file
+      - grpcurl # extract just one file
   tags:
     - grpcurl

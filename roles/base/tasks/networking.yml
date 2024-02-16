@@ -22,9 +22,9 @@
     state: latest
     update_cache: true
 
-- name: Install tcping v{{tcping_ver}}
+- name: Install tcping v{{ tcping_ver }}
   tags: [tcping]
   vars:
     tcping_ver: 2.5.0
   ansible.builtin.apt:
-    deb:  "https://github.com/pouriyajamshidi/tcping/releases/download/v{{ tcping_ver }}/tcping_amd64.deb"
+    deb: "https://github.com/pouriyajamshidi/tcping/releases/download/v{{ tcping_ver }}/tcping_amd64.deb"
