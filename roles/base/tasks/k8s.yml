@@ -247,3 +247,16 @@
   tags:
     - cilium
     - cilium-cli
+
+# https://github.com/kubecolor/kubecolor
+- name: K8s | Install kubecolor {{ kubecolor_ver }}
+  vars:
+    kubecolor_ver: 0.2.2
+  ansible.builtin.unarchive:
+    src: https://github.com/kubecolor/kubecolor/releases/download/v{{ kubecolor_ver }}/kubecolor_{{ kubecolor_ver }}_linux_amd64.tar.gz
+    dest: /usr/local/bin
+    extra_opts:
+      - kubecolor
+    remote_src: true
+  tags:
+    - kubecolor

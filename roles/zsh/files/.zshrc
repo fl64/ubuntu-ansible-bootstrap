@@ -175,6 +175,11 @@ alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-r
 # d8 sds-drbd
 alias linstor='kubectl -n d8-sds-drbd exec -ti deploy/linstor-controller -- originallinstor'
 
+# kubectl
+alias kubectl=kubecolor
+# make completion work with kubecolor
+compdef kubecolor=kubectl
+
 # funcs ======================================================
 
 function d8_set_dh_image () {
