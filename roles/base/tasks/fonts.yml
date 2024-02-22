@@ -1,26 +1,22 @@
 ---
-- name: Fonts | Install fonts
-  ansible.builtin.apt:
-    name:
-      - fonts-firacode
-    state: present
-    update_cache: true
+# - name: Fonts | Install fonts
+#   ansible.builtin.apt:
+#     name:
+#       - fonts-firacode
+#     state: present
+#     update_cache: true
 
+# https://github.com/ryanoasis/nerd-fonts
 - name: Look_and_feel | Install Nerd fonts
   become: false
   tags: [fonts]
   vars:
+    font_ver: 3.1.1
     nerd_fonts:
-      - {font: "BlexMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/IBMPlexMono.zip"}
-      - {font: "Caskaydia", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/CascadiaCode.zip"}
-      - {font: "DroidSansMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.0.0/DroidSansMono.zip"}
-      - {font: "Inconsolata", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/InconsolataGo.zip"}
-      - {font: "Iosevka", link: "https://github.com/be5invis/Iosevka/releases/download/v16.3.6/ttc-iosevka-16.3.6.zip"}
-      - {font: "IosevkaTerm", link: "https://github.com/be5invis/Iosevka/releases/download/v16.3.6/ttc-sgr-iosevka-term-16.3.6.zip"}
-      - {font: "FiraCode", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraCode.zip"}
-      - {font: "FiraMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/FiraMono.zip"}
-      - {font: "JetBrainsMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/JetBrainsMono.zip"}
-      - {font: "UbuntuMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.2.2/UbuntuMono.zip"}
+      - {font: "FiraCode", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/FiraCode.zip"}
+      - {font: "FiraMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/FiraMono.zip"}
+      - {font: "JetBrainsMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/JetBrainsMono.zip"}
+      - {font: "UbuntuMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/UbuntuMono.zip"}
   block:
     - name: Debug
       ansible.builtin.debug:
