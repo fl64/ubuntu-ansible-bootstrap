@@ -109,3 +109,12 @@
       - grpcurl # extract just one file
   tags:
     - grpcurl
+
+# https://github.com/jgraph/drawio-desktop
+- name: Install drawio
+  vars:
+    drawio_ver: 24.1.0
+  ansible.builtin.apt:
+    deb: https://github.com/jgraph/drawio-desktop/releases/download/v{{ drawio_ver }}/drawio-amd64-{{ drawio_ver }}.deb
+  tags:
+    - drawio

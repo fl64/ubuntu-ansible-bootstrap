@@ -21,10 +21,24 @@
         state: latest
         update_cache: true
 
+# https://github.com/cue-lang/cue/releases/download/v0.8.0/cue_v0.8.0_linux_amd64.tar.gz
+- name: K8s | Install CUE {{ cur_ver }}
+  vars:
+    cur_ver: 0.8.0
+  ansible.builtin.unarchive:
+    src: https://github.com/cue-lang/cue/releases/download/v{{ cur_ver }}/cue_v{{ cur_ver }}_linux_amd64.tar.gz
+    dest: /usr/local/bin
+    extra_opts:
+      - cue  # extract just one file
+    remote_src: true
+    mode: 0755
+  tags:
+    - cue
+
 # https://github.com/derailed/k9s/releases
 - name: K8s | Install k9s {{ k9s_ver }}
   vars:
-    k9s_ver: 0.31.9
+    k9s_ver: 0.32.4
     k9s_folder: "{{ base_user_home }}/.config/k9s"
   tags:
     - k9s
