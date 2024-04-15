@@ -153,27 +153,20 @@ alias vs="vagrant ssh"
 alias tfp="terraform plan -no-color | grep -E '(^.*[#~+-] .*|^[[:punct:]]|Plan)'"
 
 # d8 logs
-alias d8l="stern -n d8-system -l app=deckhouse -o json | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
-alias d8l0="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
-alias d8lw="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
+alias d8_l="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
+alias d8_lw="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
 
 # virtualization logs
-alias dvpd8="stern -n d8-system -l app=deckhouse -o json --tail=0 --include=\"virt\" | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
-alias dvpl="stern -n d8-virtualization --tail=0 . --exclude virt-api"
-
-# d8
-alias d8_edit_dh_cm="kubectl -n d8-system edit cm deckhouse"
-alias d8_get_dh_image="kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name=\"deckhouse\") | { image, imageID }'"
-alias d8_node_ext_ip="kubectl get nodes -o json | jq '.items[] |  select (.status.addresses[].type==\"ExternalIP\") | { ext_ip: .status.addresses | .[] | select (.type==\"ExternalIP\") | .address, name: .metadata.name}' -r "
+alias d8_lvirt="stern -n d8-system -l app=deckhouse -o json --tail=0 --include=\"virt\" | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
+alias v12_l="stern -n d8-virtualization --tail=0 ."
 
 # d8 cilium
-alias d8_edit_cilium_cm="kubectl edit cm -n d8-cni-cilium cilium-config"
-alias d8_cilium_logs="stern -n d8-cni-cilium -l app=agent"
-alias d8_get_cilium_ver="kubectl -n d8-cni-cilium exec -it ds/agent -c cilium-agent -- cilium version"
 alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
 
 # d8 sds-drbd
-alias linstor='kubectl -n d8-sds-drbd exec -ti deploy/linstor-controller -- originallinstor'
+alias linstor='kubectl -n d8-sds-replicated-volume exec -ti deploy/linstor-controller -- originallinstor'
+
+alias d8-queue='kubectl -n d8-system exec -it $((kubectl -n d8-system get leases.coordination.k8s.io deckhouse-leader-election -o jsonpath={.spec.holderIdentity} 2>/dev/null || echo "deploy/deckhouse") | cut -d. -f1) -c deckhouse -- deckhouse-controller queue list'
 
 # kubectl
 alias kubectl=kubecolor
@@ -182,8 +175,28 @@ compdef kubecolor=kubectl
 
 # funcs ======================================================
 
-function d8_set_dh_image () {
+function d8_set_ver () {
     kubectl -n d8-system set image deploy/deckhouse deckhouse="dev-registry.deckhouse.io/sys/deckhouse-oss:$1"
+}
+
+function d8_get_ver () {
+    kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name="deckhouse") | {image, imageID}'  -c
+}
+
+function v12_set_ver () {
+    kubectl patch mpo virtualization --type merge --patch  '{"spec":{"imageTag":"'$1'"}}'
+}
+
+function v12_get_ver () {
+    kubectl get mpo virtualization -o json  | jq '.spec.imageTag' -r
+}
+
+function v12_on () {
+    kubectl patch mc virtualization --type merge --patch '{"spec":{"enabled":true}}'
+}
+
+function v12_off () {
+    kubectl patch mc virtualization --type merge --patch '{"spec":{"enabled":false}}'
 }
 
 ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass.txt

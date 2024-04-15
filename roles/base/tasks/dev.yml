@@ -11,7 +11,7 @@
 
 - name: dev | Install golang {{ golang_ver }}
   vars:
-    golang_ver: 1.21.6
+    golang_ver: 1.22.3
   ansible.builtin.unarchive:
     src: "https://go.dev/dl/go{{ golang_ver }}.linux-amd64.tar.gz"
     dest: /usr/local/
@@ -22,11 +22,17 @@
     - golang
 
 # https://github.com/go-task/task
-- name: Install task
+- name: Install task {{ task_ver }}
   vars:
-    task_ver: 3.34.1
-  ansible.builtin.apt:
-    deb: https://github.com/go-task/task/releases/download/v{{ task_ver }}/task_linux_amd64.deb
+    task_ver: 3.37.0
+  ansible.builtin.unarchive:
+    src: "https://github.com/go-task/task/releases/download/v{{task_ver}}/task_linux_amd64.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: true
+    mode: 0755
+
+  # ansible.builtin.apt:
+  #   deb: https://github.com/go-task/task/releases/download/v{{ task_ver }}/task_linux_amd64.deb
   tags:
     - task
 

@@ -5,11 +5,11 @@
       - htop
       - iotop
       - nmap
-      - fzf
+      #- fzf
       - exa
       - remmina
-      - jq
-      - jc
+      # - jq
+      # - jc
       - asciinema
       - peek
       - unrar
@@ -41,6 +41,37 @@
 #           - lynis
 #         state: latest
 #         update_cache: true
+
+
+
+
+
+# https://github.com/direnv/direnv
+- name: direnv | Install direnv {{ direnv_ver }}
+  vars:
+    direnv_ver: "2.34.0"
+  ansible.builtin.get_url:
+    url: "https://github.com/direnv/direnv/releases/download/v{{ direnv_ver }}/direnv.linux-amd64"
+    force: true
+    dest: "/usr/local/bin/direnv"
+    mode: 0755
+  tags:
+    - direnv
+
+# https://github.com/junegunn/fzf
+- name: fzf | Install fzf {{ fzf_ver }}
+  vars:
+    fzf_ver: "0.50.0"
+  ansible.builtin.unarchive:
+    src: "https://github.com/junegunn/fzf/releases/download/{{ fzf_ver }}/fzf-{{ fzf_ver }}-linux_amd64.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - fzf # extract just one file
+  tags:
+    - fzf
+
 
 # https://github.com/wader/fq
 - name: fq | Install fq {{ fq_ver }}
