@@ -16,3 +16,5 @@
       tags: [zsh]
     - role: i3
       tags: [i3, never]
+    - role: doom
+      tags: [doom, never]

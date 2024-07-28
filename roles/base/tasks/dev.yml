@@ -1,4 +1,39 @@
 ---
+- name: vscodium
+  tags: ["vscodium", "codium"]
+  block:
+    - name: Codium | Add apt key
+      ansible.builtin.apt_key:
+        url: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg
+        keyring: /usr/share/keyrings/vscodium-archive-keyring.gpg
+    - name: Codium | Add repo
+      ansible.builtin.apt_repository:
+        repo: "deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main'"
+        state: present
+        filename: vscodium
+    - name: Codium | Install
+      ansible.builtin.apt:
+        name:
+          - codium
+        state: latest
+        update_cache: true
+
+    - name: Codium | Configure product.json
+      become: false
+      ansible.builtin.copy:
+        content: |
+          {
+            "extensionsGallery": {
+              "cacheUrl": "https://vscode.blob.core.windows.net/gallery/index",
+              "controlUrl": "",
+              "itemUrl": "https://marketplace.visualstudio.com/items",
+              "serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery"
+            }
+          }
+        dest: "{{ base_user_home }}/.config/VSCodium/product.json"
+        mode: "0644"
+
+
 - name: dev | Install dev tools
   ansible.builtin.apt:
     name:
@@ -11,7 +46,7 @@
 
 - name: dev | Install golang {{ golang_ver }}
   vars:
-    golang_ver: 1.22.3
+    golang_ver: 1.22.5
   ansible.builtin.unarchive:
     src: "https://go.dev/dl/go{{ golang_ver }}.linux-amd64.tar.gz"
     dest: /usr/local/
@@ -24,7 +59,7 @@
 # https://github.com/go-task/task
 - name: Install task {{ task_ver }}
   vars:
-    task_ver: 3.37.0
+    task_ver: 3.38.0
   ansible.builtin.unarchive:
     src: "https://github.com/go-task/task/releases/download/v{{task_ver}}/task_linux_amd64.tar.gz"
     dest: /usr/local/bin/
@@ -51,7 +86,7 @@
 # https://github.com/goss-org/goss
 - name: goss | Install goss {{ goss_ver }}
   vars:
-    goss_ver: v0.4.4
+    goss_ver: v0.4.8
   ansible.builtin.get_url:
     url: "https://github.com/goss-org/goss/releases/download/{{ goss_ver }}/goss-linux-amd64"
     dest: /usr/local/bin/goss
@@ -64,11 +99,11 @@
 # https://github.com/hairyhenderson/gomplate
 - name: gomplate | Install gomplate {{ gomplate_ver }}
   vars:
-    gomplate_ver: 3.11.7
+    gomplate_ver: 4.1.0
   ansible.builtin.get_url:
     url: "https://github.com/hairyhenderson/gomplate/releases/download/v{{ gomplate_ver }}/gomplate_linux-amd64"
     dest: /usr/local/bin/gomplate
-    checksum: sha256:adfa5c7412610dde5fadea07a6b25e7cfa2db462a55b128bdce2ec8fcff22136
+    checksum: sha256:0f5c89747e6b838cc5b7e8371eda0582388edebf7a4878e84de92a7f4a7f82a6
     force: true
     mode: 0755
   tags:
@@ -104,7 +139,7 @@
 # https://github.com/kubernetes-sigs/kubebuilder
 - name: kubebuilder | Install kubebuilder {{ kubebuilder_ver }}
   vars:
-    kubebuilder_ver: 3.14.0
+    kubebuilder_ver: 4.1.1
   ansible.builtin.get_url:
     url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v{{ kubebuilder_ver }}/kubebuilder_linux_amd64"
     dest: /usr/local/bin/kubebuilder
@@ -116,7 +151,7 @@
 # https://github.com/operator-framework/operator-sdk
 - name: operator-sdk | Install operator-sdk {{ operator_sdk_ver }}
   vars:
-    operator_sdk_ver: 1.33.0
+    operator_sdk_ver: 1.35.0
   ansible.builtin.get_url:
     url: "https://github.com/operator-framework/operator-sdk/releases/download/v{{ operator_sdk_ver }}/operator-sdk_linux_amd64"
     dest: /usr/local/bin/operator-sdk

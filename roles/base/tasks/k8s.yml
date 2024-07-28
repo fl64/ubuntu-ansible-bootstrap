@@ -1,7 +1,7 @@
 ---
 - name: K8s | Install k8s repo
   vars:
-    k8s_ver: v1.29
+    k8s_ver: v1.30
   tags:
     - kubectl
   block:
@@ -26,7 +26,7 @@
 # https://github.com/cue-lang/cue
 - name: K8s | Install CUE {{ cur_ver }}
   vars:
-    cur_ver: 0.9.0
+    cur_ver: 0.10.1
   ansible.builtin.unarchive:
     src: https://github.com/cue-lang/cue/releases/download/v{{ cur_ver }}/cue_v{{ cur_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -99,7 +99,6 @@
               tail: 100
               buffer: 5000
               sinceSeconds: -1
-              fullScreen: false
               textWrap: false
               showTime: false
             imageScans:
@@ -197,7 +196,7 @@
 # https://github.com/stern/stern
 - name: K8s | Install stern {{ stern_ver }}
   vars:
-    stern_ver: 1.30.0
+    stern_ver: 1.31.0
   ansible.builtin.unarchive:
     src: "https://github.com/stern/stern/releases/download/v{{ stern_ver }}/stern_{{ stern_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin
@@ -232,7 +231,7 @@
 # https://github.com/kubernetes-sigs/kustomize
 - name: K8s | Install kustomize {{ kustomize_ver }}
   vars:
-    kustomize_ver: 5.4.2
+    kustomize_ver: 5.5.0
   ansible.builtin.unarchive:
     src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv{{ kustomize_ver }}/kustomize_v{{ kustomize_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -246,7 +245,7 @@
 # https://github.com/helm/helm/releases
 - name: K8s | Install helm {{ helm_ver }}
   vars:
-    helm_ver: v3.15.1
+    helm_ver: v3.16.2
   ansible.builtin.unarchive:
     src: "https://get.helm.sh/helm-{{ helm_ver }}-linux-amd64.tar.gz"
     dest: /usr/local/bin
@@ -308,7 +307,7 @@
 # https://kind.sigs.k8s.io/
 - name: K8s | Install kind
   vars:
-    kind_ver: 0.23.0
+    kind_ver: 0.24.0
   ansible.builtin.get_url:
     url: "https://kind.sigs.k8s.io/dl/v{{ kind_ver }}/kind-linux-amd64"
     force: true
@@ -320,7 +319,7 @@
 # https://github.com/kubeshark/kubeshark
 - name: K8s | Install kubeshark
   vars:
-    kubeshark_ver: 52.3.62
+    kubeshark_ver: 52.3.84
   ansible.builtin.get_url:
     url: "https://github.com/kubeshark/kubeshark/releases/download/v{{ kubeshark_ver }}/kubeshark_linux_amd64"
     force: true
@@ -346,7 +345,7 @@
 # https://github.com/kubecolor/kubecolor
 - name: K8s | Install kubecolor {{ kubecolor_ver }}
   vars:
-    kubecolor_ver: 0.3.3
+    kubecolor_ver: 0.4.0
   ansible.builtin.unarchive:
     src: https://github.com/kubecolor/kubecolor/releases/download/v{{ kubecolor_ver }}/kubecolor_{{ kubecolor_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -360,12 +359,15 @@
 # https://github.com/deckhouse/deckhouse-cli
 - name: K8s | Install d8 cli {{ d8cli_ver }}
   vars:
-    d8cli_ver: 0.1.2
+    d8cli_ver: 0.3.7
   ansible.builtin.unarchive:
     src: https://github.com/deckhouse/deckhouse-cli/releases/download/v{{ d8cli_ver }}/d8-v{{ d8cli_ver }}-linux-amd64.tar.gz
+    #dest: /home/user/git/fl64/ubuntu-ansible-bootstrap
     dest: /usr/local/bin
-    # extra_opts:
-    #   - d8
+    extra_opts:
+      - --strip=1
+      - --wildcards
+      - "*/d8"
     remote_src: true
   tags:
     - d8cli
@@ -374,7 +376,7 @@
 # https://github.com/siderolabs/talos
 - name: K8s | Install talosctl
   vars:
-    talosctl_ver: 1.7.4
+    talosctl_ver: 1.8.1
   ansible.builtin.get_url:
     url: "https://github.com/siderolabs/talos/releases/download/v{{ talosctl_ver }}/talosctl-linux-amd64"
     force: true
@@ -383,3 +385,30 @@
   tags:
     - talosctl
     - talos
+
+
+# https://github.com/kubevirt/kubevirt
+- name: K8s | Install virtctl
+  vars:
+    virtctl_ver: 1.3.1
+  ansible.builtin.get_url:
+    url: "https://github.com/kubevirt/kubevirt/releases/download/v{{ virtctl_ver }}/virtctl-v{{ virtctl_ver }}-linux-amd64"
+    force: true
+    dest: "/usr/local/bin/virtctl"
+    mode: 0755
+  tags:
+    - virtctl
+    - kubevirt
+
+# https://github.com/Skarlso/crd-to-sample-yaml
+- name: K8s | Install cty
+  vars:
+    cty_ver: 1.0.2
+  ansible.builtin.unarchive:
+    src: https://github.com/Skarlso/crd-to-sample-yaml/releases/download/v1.0.2/cty_linux_amd64.tar.gz
+    remote_src: true
+    dest: /usr/local/bin
+    extra_opts:
+      - cty
+  tags:
+    - cty
