@@ -13,9 +13,9 @@
       - telegram-desktop
       - dbeaver-ce
       # - kontena-lens
-      - shadowsocks-libev
+      # - shadowsocks-libev
       - obsidian
-      - goland
+      # - goland
   when: snap_installed.rc == 0
   tags:
     - snap

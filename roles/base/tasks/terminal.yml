@@ -41,30 +41,9 @@
     EOF
   when: dconf_installed.rc == 0
 
-# - name: Terminal | install direnv
-#   vars:
-#     direnv_ver: 2.22.0
-#     direnv_url: https://github.com/direnv/direnv/releases/download/v{{ direnv_ver }}/direnv.linux-amd64
-#   get_url:
-#     url: "{{ direnv_url }}"
-#     dest: "/usr/local/bin/direnv"
-#     mode: '0755'
-#     force: true
 
 # - name: "Fix ~[[200 issue"
 #   ansible.builtin.lineinfile:
 #     path: "{{ base_user_home }}/.inputrc"
 #     regexp: "^set enable-bracketed-paste.+"
 #     line: set enable-bracketed-paste off
-
-# https://github.com/kovidgoyal/kitty
-- name: Kitty | Install kitten
-  vars:
-    kitten_ver: 0.32.2
-  ansible.builtin.get_url:
-    url: "https://github.com/kovidgoyal/kitty/releases/download/v{{ kitten_ver }}/kitten-linux-amd64"
-    force: true
-    dest: "/usr/local/bin/kitten"
-    mode: 0755
-  tags:
-    - kitten

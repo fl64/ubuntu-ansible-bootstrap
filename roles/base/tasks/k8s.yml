@@ -26,7 +26,7 @@
 # https://github.com/cue-lang/cue
 - name: K8s | Install CUE {{ cur_ver }}
   vars:
-    cur_ver: 0.10.1
+    cur_ver: 0.11.1
   ansible.builtin.unarchive:
     src: https://github.com/cue-lang/cue/releases/download/v{{ cur_ver }}/cue_v{{ cur_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -40,7 +40,7 @@
 # https://github.com/derailed/k9s/releases
 - name: K8s | Install k9s {{ k9s_ver }}
   vars:
-    k9s_ver: 0.32.4
+    k9s_ver: 0.32.7
     k9s_folder: "{{ base_user_home }}/.config/k9s"
   tags:
     - k9s
@@ -245,7 +245,7 @@
 # https://github.com/helm/helm/releases
 - name: K8s | Install helm {{ helm_ver }}
   vars:
-    helm_ver: v3.16.2
+    helm_ver: v3.16.4
   ansible.builtin.unarchive:
     src: "https://get.helm.sh/helm-{{ helm_ver }}-linux-amd64.tar.gz"
     dest: /usr/local/bin
@@ -295,7 +295,7 @@
 # https://github.com/stackrox/kube-linter
 - name: K8s | Install kube-linter
   vars:
-    kube_linter_ver: 0.6.8
+    kube_linter_ver: 0.7.1
   ansible.builtin.get_url:
     url: "https://github.com/stackrox/kube-linter/releases/download/v{{ kube_linter_ver }}/kube-linter-linux"
     force: true
@@ -307,7 +307,7 @@
 # https://kind.sigs.k8s.io/
 - name: K8s | Install kind
   vars:
-    kind_ver: 0.24.0
+    kind_ver: 0.26.0
   ansible.builtin.get_url:
     url: "https://kind.sigs.k8s.io/dl/v{{ kind_ver }}/kind-linux-amd64"
     force: true
@@ -319,7 +319,7 @@
 # https://github.com/kubeshark/kubeshark
 - name: K8s | Install kubeshark
   vars:
-    kubeshark_ver: 52.3.84
+    kubeshark_ver: 52.3.94
   ansible.builtin.get_url:
     url: "https://github.com/kubeshark/kubeshark/releases/download/v{{ kubeshark_ver }}/kubeshark_linux_amd64"
     force: true
@@ -331,7 +331,7 @@
 # https://github.com/cilium/cilium-cli
 - name: K8s | Install cilium-cli {{ cilium_cli_ver }}
   vars:
-    cilium_cli_ver: v0.16.10
+    cilium_cli_ver: v0.16.22
   ansible.builtin.unarchive:
     src: https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_ver }}/cilium-linux-amd64.tar.gz
     dest: /usr/local/bin
@@ -359,13 +359,13 @@
 # https://github.com/deckhouse/deckhouse-cli
 - name: K8s | Install d8 cli {{ d8cli_ver }}
   vars:
-    d8cli_ver: 0.3.7
+    d8cli_ver: 0.9.0
   ansible.builtin.unarchive:
     src: https://github.com/deckhouse/deckhouse-cli/releases/download/v{{ d8cli_ver }}/d8-v{{ d8cli_ver }}-linux-amd64.tar.gz
     #dest: /home/user/git/fl64/ubuntu-ansible-bootstrap
     dest: /usr/local/bin
     extra_opts:
-      - --strip=1
+      - --strip=2
       - --wildcards
       - "*/d8"
     remote_src: true
@@ -376,7 +376,7 @@
 # https://github.com/siderolabs/talos
 - name: K8s | Install talosctl
   vars:
-    talosctl_ver: 1.8.1
+    talosctl_ver: 1.9.1
   ansible.builtin.get_url:
     url: "https://github.com/siderolabs/talos/releases/download/v{{ talosctl_ver }}/talosctl-linux-amd64"
     force: true
@@ -390,7 +390,7 @@
 # https://github.com/kubevirt/kubevirt
 - name: K8s | Install virtctl
   vars:
-    virtctl_ver: 1.3.1
+    virtctl_ver: 1.4.0
   ansible.builtin.get_url:
     url: "https://github.com/kubevirt/kubevirt/releases/download/v{{ virtctl_ver }}/virtctl-v{{ virtctl_ver }}-linux-amd64"
     force: true
@@ -403,7 +403,7 @@
 # https://github.com/Skarlso/crd-to-sample-yaml
 - name: K8s | Install cty
   vars:
-    cty_ver: 1.0.2
+    cty_ver: 1.1.2
   ansible.builtin.unarchive:
     src: https://github.com/Skarlso/crd-to-sample-yaml/releases/download/v1.0.2/cty_linux_amd64.tar.gz
     remote_src: true

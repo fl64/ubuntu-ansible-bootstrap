@@ -132,6 +132,10 @@ complete -o nospace -C /usr/local/bin/mc mc
 
 # aliases ======================================================
 
+alias wanip='dig @resolver4.opendns.com myip.opendns.com +short'
+alias wanip4='dig @resolver4.opendns.com myip.opendns.com +short -4'
+alias wanip6='dig @resolver1.ipv6-sandbox.opendns.com AAAA myip.opendns.com +short -6'
+
 # other
 alias cls="clear"
 alias ls="exa"
@@ -166,7 +170,7 @@ alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-r
 # d8 sds-drbd
 alias linstor='kubectl -n d8-sds-replicated-volume exec -ti deploy/linstor-controller -- originallinstor'
 
-alias d8-queue='kubectl -n d8-system exec -it $((kubectl -n d8-system get leases.coordination.k8s.io deckhouse-leader-election -o jsonpath={.spec.holderIdentity} 2>/dev/null || echo "deploy/deckhouse") | cut -d. -f1) -c deckhouse -- deckhouse-controller queue list'
+alias d8-queues='kubectl -n d8-system exec -it $((kubectl -n d8-system get leases.coordination.k8s.io deckhouse-leader-election -o jsonpath={.spec.holderIdentity} 2>/dev/null || echo "deploy/deckhouse") | cut -d. -f1) -c deckhouse -- deckhouse-controller queue list'
 
 # kubectl
 alias kubectl=kubecolor
@@ -181,6 +185,14 @@ function d8_set_ver () {
 
 function d8_get_ver () {
     kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name="deckhouse") | {image, imageID}'  -c
+}
+
+function v12_wait () {
+    tag=$(v12_get_ver)
+    echo "Waiting for virtualization tag ${tag} in registry..."
+    while [[ $(kubectl get mpo virtualization -o='jsonpath={.status.message}') != "" ]]; do echo -n "."; sleep 1; done
+    echo "Waiting for virtualization will be deployed..."
+    kubectl wait module virtualization --for='jsonpath={.status.status}=Ready' --timeout=300s
 }
 
 function v12_set_ver () {

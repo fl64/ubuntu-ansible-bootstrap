@@ -4,7 +4,6 @@
     name:
       - i3
       - i3blocks
-      - kitty
       - rofi
       - fonts-font-awesome
       - xautolock

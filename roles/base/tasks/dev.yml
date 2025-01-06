@@ -140,7 +140,7 @@
 # https://github.com/kubernetes-sigs/kubebuilder
 - name: kubebuilder | Install kubebuilder {{ kubebuilder_ver }}
   vars:
-    kubebuilder_ver: 4.3.0
+    kubebuilder_ver: 4.3.1
   ansible.builtin.get_url:
     url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v{{ kubebuilder_ver }}/kubebuilder_linux_amd64"
     dest: /usr/local/bin/kubebuilder
@@ -160,3 +160,18 @@
     mode: 0755
   tags:
     - operator-sdk
+
+
+
+# https://github.com/cli/cli
+# gh extension install github/gh-skyline
+# gh skyline --year 2024
+
+- name: Install github
+  vars:
+    gh_ver: 2.63.2
+  ansible.builtin.apt:
+    deb: https://github.com/cli/cli/releases/download/v{{ gh_ver }}/gh_{{ gh_ver }}_linux_amd64.deb
+  tags:
+    - github
+    - gh

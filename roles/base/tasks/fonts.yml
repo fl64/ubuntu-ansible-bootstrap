@@ -1,11 +1,4 @@
 ---
-# - name: Fonts | Install fonts
-#   ansible.builtin.apt:
-#     name:
-#       - fonts-firacode
-#     state: present
-#     update_cache: true
-
 # https://github.com/ryanoasis/nerd-fonts
 - name: Look_and_feel | Install Nerd fonts
   become: false
@@ -17,7 +10,6 @@
       - {font: "FiraMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/FiraMono.zip"}
       - {font: "JetBrainsMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/JetBrainsMono.zip"}
       - {font: "UbuntuMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/UbuntuMono.zip"}
-      # - {font: "DankMonoRegular", link: "https://github.com/notshekhar/Dank-Mono-Font/blob/main/DankMono-Regular.ttf"}
   block:
     - name: Debug
       ansible.builtin.debug:

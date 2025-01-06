@@ -49,7 +49,7 @@
 # https://github.com/direnv/direnv
 - name: direnv | Install direnv {{ direnv_ver }}
   vars:
-    direnv_ver: "2.34.0"
+    direnv_ver: "2.35.0"
   ansible.builtin.get_url:
     url: "https://github.com/direnv/direnv/releases/download/v{{ direnv_ver }}/direnv.linux-amd64"
     force: true
@@ -61,9 +61,9 @@
 # https://github.com/junegunn/fzf
 - name: fzf | Install fzf {{ fzf_ver }}
   vars:
-    fzf_ver: "0.50.0"
+    fzf_ver: "0.57.0"
   ansible.builtin.unarchive:
-    src: "https://github.com/junegunn/fzf/releases/download/{{ fzf_ver }}/fzf-{{ fzf_ver }}-linux_amd64.tar.gz"
+    src: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_ver }}/fzf-{{ fzf_ver }}-linux_amd64.tar.gz"
     dest: /usr/local/bin
     remote_src: true
     mode: 0755
@@ -76,7 +76,7 @@
 # https://github.com/wader/fq
 - name: fq | Install fq {{ fq_ver }}
   vars:
-    fq_ver: "0.10.0"
+    fq_ver: "0.13.0"
   ansible.builtin.unarchive:
     src: "https://github.com/wader/fq/releases/download/v{{ fq_ver }}/fq_{{ fq_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin
@@ -91,7 +91,7 @@
 # https://github.com/antonmedv/fx
 - name: fx | Install fx {{ fx_ver }}
   vars:
-    fx_ver: "31.0.0"
+    fx_ver: "35.0.0"
   ansible.builtin.get_url:
     url: "https://github.com/antonmedv/fx/releases/download/{{ fx_ver }}/fx_linux_amd64"
     force: true
@@ -103,20 +103,20 @@
 # https://github.com/mikefarah/yq
 - name: yq | Install yq {{ yq_ver }}
   vars:
-    yq_ver: v4.41.1
+    yq_ver: 4.44.6
   ansible.builtin.get_url:
-    url: "https://github.com/mikefarah/yq/releases/download/{{ yq_ver }}/yq_linux_amd64"
+    url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_ver }}/yq_linux_amd64"
     dest: /usr/local/bin/yq
     force: true
     mode: 0755
-    checksum: "sha256:ce0d5a61c256a463fd32f67f133e0c2948bc2cf77d44c42ff335a40e6bef34bf"
+    checksum: "sha256:0c2b24e645b57d8e7c0566d18643a6d4f5580feeea3878127354a46f2a1e4598"
   tags:
     - yq
 
 # https://github.com/homeport/dyff
 - name: Dyff | Install dyff {{ dyff_ver }}
   vars:
-    dyff_ver: 1.7.1
+    dyff_ver: 1.9.4
   ansible.builtin.unarchive:
     src: "https://github.com/homeport/dyff/releases/download/v{{ dyff_ver }}/dyff_{{ dyff_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin
@@ -130,7 +130,7 @@
 # https://github.com/fullstorydev/grpcurl
 - name: Grpcurl | Install grpcurl {{ grpcurl_ver }}
   vars:
-    grpcurl_ver: 1.8.9
+    grpcurl_ver: 1.9.2
   ansible.builtin.unarchive:
     src: "https://github.com/fullstorydev/grpcurl/releases/download/v{{ grpcurl_ver }}/grpcurl_{{ grpcurl_ver }}_linux_x86_64.tar.gz"
     dest: /usr/local/bin
@@ -144,7 +144,7 @@
 # https://github.com/jgraph/drawio-desktop
 - name: Install drawio
   vars:
-    drawio_ver: 24.1.0
+    drawio_ver: 26.0.4
   ansible.builtin.apt:
     deb: https://github.com/jgraph/drawio-desktop/releases/download/v{{ drawio_ver }}/drawio-amd64-{{ drawio_ver }}.deb
   tags:
