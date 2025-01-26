@@ -11,6 +11,8 @@
       - picom
       - cpupower-gui
       - zenity
+      - scrot
+      - feh
     state: latest
     update_cache: true
 

@@ -1,0 +1,20 @@
+# https://github.com/Youda008/DoomRunner
+- name: doom | Install DoomRunner {{ doom_runner_ver }}
+  vars:
+    doom_runner_ver: 1.8.3
+  ansible.builtin.unarchive:
+    src: https://github.com/Youda008/DoomRunner/releases/download/v{{ doom_runner_ver }}/DoomRunner-{{ doom_runner_ver }}-Linux-64bit-dynamic.zip
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+  tags:
+    - doom-runner
+
+# https://github.com/ZDoom/gzdoom
+- name: doom | Install GZDoom {{ gzdoom_ver }}
+  vars:
+    gzdoom_ver: 4.14.0
+  ansible.builtin.apt:
+    deb: "https://github.com/ZDoom/gzdoom/releases/download/g{{ gzdoom_ver }}/gzdoom_{{ gzdoom_ver }}_amd64.deb"
+  tags:
+    - gzdoom
