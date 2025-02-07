@@ -59,7 +59,7 @@
 # https://github.com/go-task/task
 - name: Install task {{ task_ver }}
   vars:
-    task_ver: 3.38.0
+    task_ver: 3.41.0
   ansible.builtin.unarchive:
     src: "https://github.com/go-task/task/releases/download/v{{task_ver}}/task_linux_amd64.tar.gz"
     dest: /usr/local/bin/
@@ -70,6 +70,18 @@
   #   deb: https://github.com/go-task/task/releases/download/v{{ task_ver }}/task_linux_amd64.deb
   tags:
     - task
+
+# https://github.com/jesseduffield/lazygit
+- name: Install lazygit {{ lazygit_ver }}
+  vars:
+    lazygit_ver: 0.45.2
+  ansible.builtin.unarchive:
+    src: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_ver }}/lazygit_{{ lazygit_ver }}_Linux_x86_64.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: true
+    mode: 0755
+  tags:
+    - lazygit
 
 # https://github.com/krisnova/naml
 - name: naml | Install naml {{ naml_ver }}
@@ -99,11 +111,11 @@
 # https://github.com/hairyhenderson/gomplate
 - name: gomplate | Install gomplate {{ gomplate_ver }}
   vars:
-    gomplate_ver: 4.1.0
+    gomplate_ver: 4.3.0
   ansible.builtin.get_url:
     url: "https://github.com/hairyhenderson/gomplate/releases/download/v{{ gomplate_ver }}/gomplate_linux-amd64"
     dest: /usr/local/bin/gomplate
-    checksum: sha256:0f5c89747e6b838cc5b7e8371eda0582388edebf7a4878e84de92a7f4a7f82a6
+    checksum: sha256:8adb82e5be7dfde49857ebd7c948fd8f9b10cdcdb13f71b74685dff6e6756890
     force: true
     mode: 0755
   tags:
@@ -112,7 +124,7 @@
 # https://github.com/erebe/wstunnel
 - name: wstunnel | Install wstunnel {{ wstunnel_ver }}
   vars:
-    wstunnel_ver: 10.1.5
+    wstunnel_ver: 10.1.9
   ansible.builtin.unarchive:
     src: "https://github.com/erebe/wstunnel/releases/download/v{{ wstunnel_ver }}/wstunnel_{{ wstunnel_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin/
@@ -126,12 +138,12 @@
 # https://github.com/vi/websocat
 - name: websocat | Install websocat {{ websocat_ver }}
   vars:
-    websocat_ver: 1.13.0
+    websocat_ver: 1.14.0
   ansible.builtin.get_url:
     url: "https://github.com/vi/websocat/releases/download/v{{ websocat_ver }}/websocat.x86_64-unknown-linux-musl"
     #url: "https://github.com/vi/websocat/releases/download/v{{ websocat_ver }}/websocat.x86_64-unknown-linux-musl"
     dest: /usr/local/bin/websocat
-    checksum: sha256:8f84c57103d33ab73888707041765e0e7e6a43a91fbb6e1828cd5eabc19ae32c
+    checksum: sha256:33a80fcbf2313e3c6e816ddafec333c1a04cc34464d4ba4970d938275775a12f
     force: true
     mode: 0755
   tags:
@@ -140,7 +152,7 @@
 # https://github.com/kubernetes-sigs/kubebuilder
 - name: kubebuilder | Install kubebuilder {{ kubebuilder_ver }}
   vars:
-    kubebuilder_ver: 4.3.1
+    kubebuilder_ver: 4.5.0
   ansible.builtin.get_url:
     url: "https://github.com/kubernetes-sigs/kubebuilder/releases/download/v{{ kubebuilder_ver }}/kubebuilder_linux_amd64"
     dest: /usr/local/bin/kubebuilder
@@ -152,7 +164,7 @@
 # https://github.com/operator-framework/operator-sdk
 - name: operator-sdk | Install operator-sdk {{ operator_sdk_ver }}
   vars:
-    operator_sdk_ver: 1.37.0
+    operator_sdk_ver: 1.39.1
   ansible.builtin.get_url:
     url: "https://github.com/operator-framework/operator-sdk/releases/download/v{{ operator_sdk_ver }}/operator-sdk_linux_amd64"
     dest: /usr/local/bin/operator-sdk
@@ -169,7 +181,7 @@
 
 - name: Install github
   vars:
-    gh_ver: 2.63.2
+    gh_ver: 2.66.1
   ansible.builtin.apt:
     deb: https://github.com/cli/cli/releases/download/v{{ gh_ver }}/gh_{{ gh_ver }}_linux_amd64.deb
   tags:

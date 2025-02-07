@@ -149,3 +149,17 @@
     deb: https://github.com/jgraph/drawio-desktop/releases/download/v{{ drawio_ver }}/drawio-amd64-{{ drawio_ver }}.deb
   tags:
     - drawio
+
+# https://github.com/zellij-org/zellij
+- name: zellij | Install zellij {{ zellij_ver }}
+  vars:
+    zellij_ver: "0.41.2"
+  ansible.builtin.unarchive:
+    src: "https://github.com/zellij-org/zellij/releases/download/v{{ zellij_ver }}/zellij-x86_64-unknown-linux-musl.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - zellij # extract just one file
+  tags:
+    - zellij
