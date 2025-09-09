@@ -4,12 +4,14 @@
   become: false
   tags: [fonts]
   vars:
-    font_ver: 3.1.1
+    font_ver: 3.4.0
     nerd_fonts:
       - {font: "FiraCode", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/FiraCode.zip"}
       - {font: "FiraMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/FiraMono.zip"}
       - {font: "JetBrainsMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/JetBrainsMono.zip"}
       - {font: "UbuntuMono", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/UbuntuMono.zip"}
+      - {font: "IosevkaTerm", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/IosevkaTerm.zip"}
+      - {font: "BigBlueTerminal", link: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ font_ver }}/BigBlueTerminal.zip"}
   block:
     - name: Debug
       ansible.builtin.debug:

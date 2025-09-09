@@ -40,7 +40,7 @@
 # https://github.com/derailed/k9s/releases
 - name: K8s | Install k9s {{ k9s_ver }}
   vars:
-    k9s_ver: 0.32.7
+    k9s_ver: 0.50.9
     k9s_folder: "{{ base_user_home }}/.config/k9s"
   tags:
     - k9s
@@ -120,6 +120,102 @@
         content: |
           plugins:
             # Leverage stern (https://github.com/wercker/stern) to output logs.
+            restart-vm:
+              shortCut: r
+              confirm: false
+              description: "d8 v restart"
+              scopes:
+                - vms
+              command: d8
+              background: true
+              args:
+                - v
+                - restart
+                - --namespace
+                - $NAMESPACE
+                - --context
+                - $CONTEXT
+                - $NAME
+            stop-vm:
+              shortCut: p
+              confirm: false
+              description: "d8 v stop"
+              scopes:
+                - vms
+              command: d8
+              background: true
+              args:
+                - v
+                - stop
+                - --namespace
+                - $NAMESPACE
+                - --context
+                - $CONTEXT
+                - $NAME
+            start-vm:
+              shortCut: s
+              confirm: false
+              description: "d8 v start"
+              scopes:
+                - vms
+              command: d8
+              background: true
+              args:
+                - v
+                - start
+                - --namespace
+                - $NAMESPACE
+                - --context
+                - $CONTEXT
+                - $NAME
+            migrate-vm:
+              shortCut: m
+              confirm: false
+              description: "d8 v evict"
+              scopes:
+                - vms
+              command: d8
+              background: true
+              args:
+                - v
+                - evict
+                - --namespace
+                - $NAMESPACE
+                - --context
+                - $CONTEXT
+                - $NAME
+            console-to-vm:
+              shortCut: t
+              confirm: false
+              description: "d8 v console"
+              scopes:
+                - vms
+              command: d8
+              background: false
+              args:
+                - v
+                - console
+                - --namespace
+                - $NAMESPACE
+                - --context
+                - $CONTEXT
+                - $NAME
+            vnc-to-vm:
+              shortCut: v
+              confirm: false
+              description: "d8 v vnc"
+              scopes:
+                - vms
+              command: d8
+              background: false
+              args:
+                - v
+                - vnc
+                - --namespace
+                - $NAMESPACE
+                - --context
+                - $CONTEXT
+                - $NAME
             stern:
               shortCut: Ctrl-L
               confirm: false
@@ -191,9 +287,41 @@
                 - '{"metadata":{"finalizers":null}}'
                 - --type
                 - merge
-
-
-# https://github.com/stern/stern
+            secret-openssl-ca:
+                shortCut: Ctrl-O
+                confirm: false
+                description: Openssl ca.crt
+                scopes:
+                  - secrets
+                command: bash
+                background: false
+                args:
+                  - -c
+                  - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.ca\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
+            secret-openssl-tls:
+                shortCut: Shift-O
+                confirm: false
+                description: Openssl tls.crt
+                scopes:
+                  - secrets
+                command: bash
+                background: false
+                args:
+                  - -c
+                  - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
+            start-alpine-pod:
+                shortCut: Ctrl-T
+                confirm: true
+                description: "Start an alpine:latest pod in current context/namespace"
+                scopes:
+                  - pods
+                  - deployments
+                command: bash
+                background: true
+                args:
+                  - -c
+                  - |
+                    echo '{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "alpine", "labels": {"app": "alpine", "debug": "1"}}, "spec": {"selector": {"matchLabels": {"app": "alpine"}}, "replicas": 1, "template": {"metadata": {"labels": {"app": "alpine", "debug": "1"}, "annotations": {"kubectl.kubernetes.io/default-container": "alpine"}}, "spec": {"containers": [{"name": "alpine", "image": "alpine:latest", "imagePullPolicy": "Always", "securityContext": {"runAsUser": 0, "runAsGroup": 0}, "stdin": true, "tty": true, "stdinOnce": true, "terminationMessagePath": "/dev/termination-log", "terminationMessagePolicy": "File", "resources": {"requests": {"cpu": "100m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "100Mi"}}}], "restartPolicy": "Always"}}}}' | kubectl apply -f - --context $CONTEXT --namespace $NAMESPACE
 - name: K8s | Install stern {{ stern_ver }}
   vars:
     stern_ver: 1.31.0
@@ -359,7 +487,7 @@
 # https://github.com/deckhouse/deckhouse-cli
 - name: K8s | Install d8 cli {{ d8cli_ver }}
   vars:
-    d8cli_ver: 0.9.0
+    d8cli_ver: 0.17.1
   ansible.builtin.unarchive:
     src: https://github.com/deckhouse/deckhouse-cli/releases/download/v{{ d8cli_ver }}/d8-v{{ d8cli_ver }}-linux-amd64.tar.gz
     #dest: /home/user/git/fl64/ubuntu-ansible-bootstrap
@@ -412,3 +540,16 @@
       - cty
   tags:
     - cty
+
+# https://github.com/homeport/havener
+- name: K8s | Install havener
+  vars:
+    havener_ver: 2.2.6
+  ansible.builtin.unarchive:
+    src: https://github.com/homeport/havener/releases/download/v2.2.6/havener_2.2.6_linux_amd64.tar.gz
+    remote_src: true
+    dest: /usr/local/bin
+    extra_opts:
+      - havener
+  tags:
+    - havener

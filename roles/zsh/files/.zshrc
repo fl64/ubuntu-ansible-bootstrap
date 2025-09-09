@@ -153,24 +153,52 @@ alias vdf="vagrant destroy -f"
 alias vu="vagrant up --provision"
 alias vs="vagrant ssh"
 
+# v12n
+alias vm="kubectl get vms -o wide"
+alias vd="kubectl get vds -o wide"
+alias vi="kubectl get vis -o wide"
+alias cvi="kubectl get cvis -o wide"
+alias vmbda="kubectl get vmbda -o wide"
+alias kvvm="kubectl get intvirtvm -o wide"
+alias kvvmi="kubectl get intvirtvmi -o wide"
+alias kvvmim="kubectl get intvirtvmim -o wide"
+
+alias vm9="k9s -c vms"
+alias vd9="k9s -c vds"
+alias vi9="k9s -c vis"
+alias kvvm9="k9s -c intvirtvm"
+alias kvvmi9="k9s -c intvirtvmi"
+alias cvi9="k9s -c cvis"
+alias vmbda9="k9s -c vmbda"
+alias kvvmim="k9s -c intvirtvmim"
+
 # terraform
 alias tfp="terraform plan -no-color | grep -E '(^.*[#~+-] .*|^[[:punct:]]|Plan)'"
 
+# kube-system logs
+alias ksl="stern -n kube-system --tail=0 . -E kube-rbac-proxy -E updater -E recommender --exclude=\"(VPA|vpa)\""
+
+
 # d8 logs
-alias d8_l="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
-alias d8_lw="stern -n d8-system -l app=deckhouse -o json --tail=0 | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
+alias d8l="stern -n d8-system -l app=deckhouse -o json | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
+alias d8lw="stern -n d8-system -l app=deckhouse -o json | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
 
 # virtualization logs
-alias d8_lvirt="stern -n d8-system -l app=deckhouse -o json --tail=0 --include=\"virt\" | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
-alias v12_l="stern -n d8-virtualization --tail=0 ."
+alias d8lvirt="stern -n d8-system -l app=deckhouse -o json --include=\"virt\" | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
+
+
+alias v12l="stern -n d8-virtualization -E proxy ."
+alias v12l-virtualization-controller="stern -n d8-virtualization -E proxy -l app=virtualization-controller"
+alias v12l-virtualization-api="stern -n d8-virtualization -E proxy -l app=virt-operator"
+alias v12l-virt-handler="stern -n d8-virtualization -E proxy -l kubevirt.internal.virtualization.deckhouse.io=virt-handler"
 
 # d8 cilium
-alias d8_hubble_port_forward="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
+alias d8hpf="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
 
 # d8 sds-drbd
 alias linstor='kubectl -n d8-sds-replicated-volume exec -ti deploy/linstor-controller -- originallinstor'
 
-alias d8-queues='kubectl -n d8-system exec -it $((kubectl -n d8-system get leases.coordination.k8s.io deckhouse-leader-election -o jsonpath={.spec.holderIdentity} 2>/dev/null || echo "deploy/deckhouse") | cut -d. -f1) -c deckhouse -- deckhouse-controller queue list'
+alias d8q='kubectl -n d8-system exec -it $((kubectl -n d8-system get leases.coordination.k8s.io deckhouse-leader-election -o jsonpath={.spec.holderIdentity} 2>/dev/null || echo "deploy/deckhouse") | cut -d. -f1) -c deckhouse -- deckhouse-controller queue list'
 
 # kubectl
 alias kubectl=kubecolor
@@ -179,38 +207,41 @@ compdef kubecolor=kubectl
 
 # funcs ======================================================
 
-function d8_set_ver () {
+function d8sv () {
     kubectl -n d8-system set image deploy/deckhouse deckhouse="dev-registry.deckhouse.io/sys/deckhouse-oss:$1"
 }
 
-function d8_get_ver () {
-    kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name="deckhouse") | {image, imageID}'  -c
+function d8gv () {
+    kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name=="deckhouse") | {image, imageID}'  -c
 }
 
-function v12_wait () {
-    tag=$(v12_get_ver)
-    echo "Waiting for virtualization tag ${tag} in registry..."
-    while [[ $(kubectl get mpo virtualization -o='jsonpath={.status.message}') != "" ]]; do echo -n "."; sleep 1; done
+function v12wait () {
+    tag=$(v12gv)
     echo "Waiting for virtualization will be deployed..."
-    kubectl wait module virtualization --for='jsonpath={.status.status}=Ready' --timeout=300s
+    module_phase=$(kubectl get module virtualization -o='jsonpath={.status.phase}')
+    module_version=$(kubectl get module virtualization -o='jsonpath={.properties.version}')
+    if [[ "$module_phase" != "Ready"  && "$module_phase" != "$tag" ]]; then
+        kubectl wait module virtualization --for='jsonpath={.status.phase}=Reconciling' --timeout=300s
+        kubectl wait module virtualization --for='jsonpath={.status.phase}=Ready' --timeout=300s
+    fi
 }
 
-function v12_set_ver () {
+
+function v12sv () {
     kubectl patch mpo virtualization --type merge --patch  '{"spec":{"imageTag":"'$1'"}}'
 }
 
-function v12_get_ver () {
+function v12gv () {
     kubectl get mpo virtualization -o json  | jq '.spec.imageTag' -r
 }
 
-function v12_on () {
+function v12on () {
     kubectl patch mc virtualization --type merge --patch '{"spec":{"enabled":true}}'
 }
 
-function v12_off () {
+function v12off () {
     kubectl patch mc virtualization --type merge --patch '{"spec":{"enabled":false}}'
 }
-
 ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass.txt
 function ssh () {/usr/bin/ssh -t $@ "tmux attach || tmux new";}
 
@@ -236,13 +267,14 @@ eval $( keychain --eval -q )
 /usr/bin/keychain --inherit any --confirm $HOME/.ssh/id_rsa
 /usr/bin/keychain --inherit any --confirm $HOME/.ssh/tfadm-id-rsa
 
-export PATH="${PATH}:/home/user/bin"
+export PATH="${PATH}:/home/user/bin:/home/user/go/bin"
 
 #. <(istioctl completion zsh)
 
 #. <(kubespy completion zsh)
 
-. <(kubebuilder completion zsh)
+# . <(kubebuilder completion zsh)
+. <(d8 completion zsh)
 
 # The next line updates PATH for Yandex Cloud CLI.
 if [ -f '/home/user/yandex-cloud/path.bash.inc' ]; then source '/home/user/yandex-cloud/path.bash.inc'; fi

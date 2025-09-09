@@ -181,9 +181,37 @@
 
 - name: Install github
   vars:
-    gh_ver: 2.66.1
+    gh_ver: 2.67.0
   ansible.builtin.apt:
     deb: https://github.com/cli/cli/releases/download/v{{ gh_ver }}/gh_{{ gh_ver }}_linux_amd64.deb
   tags:
     - github
     - gh
+
+# https://github.com/pamburus/hl
+- name: hl | Install hl {{ hl_ver }}
+  vars:
+    hl_ver: 0.30.3
+  ansible.builtin.unarchive:
+    src: "https://github.com/pamburus/hl/releases/download/v{{ hl_ver }}/hl-linux-x86_64-gnu.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - hl
+  tags:
+    - hl
+
+# https://github.com/dimonomid/nerdlog
+- name: nerdlog | Install nerdlog {{ nerdlog_ver }}
+  vars:
+    nerdlog_ver: 1.2.4
+  ansible.builtin.unarchive:
+    src: "https://github.com/dimonomid/nerdlog/releases/download/v{{ nerdlog_ver }}/nerdlog_linux_amd64.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - nerdlog
+  tags:
+    - nerdlog
