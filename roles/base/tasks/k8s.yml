@@ -487,7 +487,7 @@
 # https://github.com/deckhouse/deckhouse-cli
 - name: K8s | Install d8 cli {{ d8cli_ver }}
   vars:
-    d8cli_ver: 0.17.1
+    d8cli_ver: 0.20.11
   ansible.builtin.unarchive:
     src: https://github.com/deckhouse/deckhouse-cli/releases/download/v{{ d8cli_ver }}/d8-v{{ d8cli_ver }}-linux-amd64.tar.gz
     #dest: /home/user/git/fl64/ubuntu-ansible-bootstrap
