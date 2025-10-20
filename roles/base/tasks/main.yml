@@ -43,6 +43,6 @@
   ansible.builtin.import_tasks: k8s.yml
   tags: [k8s]
 
-- name: Install hasicorp packages
-  ansible.builtin.import_tasks: hasicorp.yml
+- name: Install hashicorp packages
+  ansible.builtin.import_tasks: hashicorp.yml
   tags: [hashicorp]
