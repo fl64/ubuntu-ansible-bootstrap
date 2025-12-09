@@ -1,7 +1,7 @@
 ---
 - name: K8s | Install k8s repo
   vars:
-    k8s_ver: v1.30
+    k8s_ver: v1.33
   tags:
     - kubectl
   block:
@@ -26,7 +26,7 @@
 # https://github.com/cue-lang/cue
 - name: K8s | Install CUE {{ cur_ver }}
   vars:
-    cur_ver: 0.11.1
+    cur_ver: 0.15.1
   ansible.builtin.unarchive:
     src: https://github.com/cue-lang/cue/releases/download/v{{ cur_ver }}/cue_v{{ cur_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -37,294 +37,10 @@
   tags:
     - cue
 
-# https://github.com/derailed/k9s/releases
-- name: K8s | Install k9s {{ k9s_ver }}
-  vars:
-    k9s_ver: 0.50.9
-    k9s_folder: "{{ base_user_home }}/.config/k9s"
-  tags:
-    - k9s
-  block:
-    - name: k9s | Install k9s
-      ansible.builtin.unarchive:
-        src: "https://github.com/derailed/k9s/releases/download/v{{ k9s_ver }}/k9s_Linux_amd64.tar.gz"
-        dest: /usr/local/bin
-        remote_src: true
-        mode: 0755
-
-    - name: k9s | Create folder {{ k9s_folder }}
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: directory
-        mode: "0755"
-      with_items:
-        - "{{ k9s_folder }}"
-        - "{{ k9s_folder }}/skins"
-
-    # https://github.com/derailed/k9s/tree/master/skins
-    - name: k9s | Gruvbox theme
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/derailed/k9s/master/skins/gruvbox-dark.yaml
-        force: true
-        dest: "{{ k9s_folder }}/skins/gruvbox-dark.yaml"
-        mode: 0644
-
-    - name: k9s | config
-      ansible.builtin.copy:
-        mode: 0644
-        dest: "{{ k9s_folder }}/config.yaml"
-        content: |
-          k9s:
-            liveViewAutoRefresh: true
-            refreshRate: 2
-            maxConnRetry: 5
-            readOnly: false
-            noExitOnCtrlC: false
-            ui:
-              enableMouse: false
-              headless: true
-              logoless: true
-              crumbsless: false
-              noIcons: false
-              reactive: true
-              skin: gruvbox-dark
-            shellPod:
-              image: contreg.ru/library/busybox:1.35.0
-              namespace: default
-              limits:
-                cpu: 100m
-                memory: 100Mi
-            skipLatestRevCheck: false
-            logger:
-              tail: 100
-              buffer: 5000
-              sinceSeconds: -1
-              textWrap: false
-              showTime: false
-            imageScans:
-              enable: false
-            thresholds:
-              cpu:
-                critical: 90
-                warn: 70
-              memory:
-                critical: 90
-                warn: 70
-            screenDumpDir: /tmp/k9s-screens
-            disablePodCounting: false
-
-    - name: k9s | config
-      ansible.builtin.copy:
-        mode: 0644
-        dest: "{{ k9s_folder }}/plugins.yaml"
-        content: |
-          plugins:
-            # Leverage stern (https://github.com/wercker/stern) to output logs.
-            restart-vm:
-              shortCut: r
-              confirm: false
-              description: "d8 v restart"
-              scopes:
-                - vms
-              command: d8
-              background: true
-              args:
-                - v
-                - restart
-                - --namespace
-                - $NAMESPACE
-                - --context
-                - $CONTEXT
-                - $NAME
-            stop-vm:
-              shortCut: p
-              confirm: false
-              description: "d8 v stop"
-              scopes:
-                - vms
-              command: d8
-              background: true
-              args:
-                - v
-                - stop
-                - --namespace
-                - $NAMESPACE
-                - --context
-                - $CONTEXT
-                - $NAME
-            start-vm:
-              shortCut: s
-              confirm: false
-              description: "d8 v start"
-              scopes:
-                - vms
-              command: d8
-              background: true
-              args:
-                - v
-                - start
-                - --namespace
-                - $NAMESPACE
-                - --context
-                - $CONTEXT
-                - $NAME
-            migrate-vm:
-              shortCut: m
-              confirm: false
-              description: "d8 v evict"
-              scopes:
-                - vms
-              command: d8
-              background: true
-              args:
-                - v
-                - evict
-                - --namespace
-                - $NAMESPACE
-                - --context
-                - $CONTEXT
-                - $NAME
-            console-to-vm:
-              shortCut: t
-              confirm: false
-              description: "d8 v console"
-              scopes:
-                - vms
-              command: d8
-              background: false
-              args:
-                - v
-                - console
-                - --namespace
-                - $NAMESPACE
-                - --context
-                - $CONTEXT
-                - $NAME
-            vnc-to-vm:
-              shortCut: v
-              confirm: false
-              description: "d8 v vnc"
-              scopes:
-                - vms
-              command: d8
-              background: false
-              args:
-                - v
-                - vnc
-                - --namespace
-                - $NAMESPACE
-                - --context
-                - $CONTEXT
-                - $NAME
-            stern:
-              shortCut: Ctrl-L
-              confirm: false
-              description: "Logs <Stern>"
-              scopes:
-                - pods
-              command: stern
-              background: false
-              args:
-                - --tail
-                - 50
-                - $FILTER
-                - -n
-                - $NAMESPACE
-                - --context
-                - $CONTEXT
-            watch-events:
-              shortCut: Shift-E
-              confirm: false
-              description: Get Events
-              scopes:
-              - all
-              command: sh
-              background: false
-              args:
-              - -c
-              - "watch -n 5 kubectl get events --context $CONTEXT --namespace $NAMESPACE --field-selector involvedObject.name=$NAME"
-            blame:
-              shortCut: b
-              confirm: false
-              description: "Blame"
-              scopes:
-                - all
-              command: sh
-              background: false
-              args:
-                - -c
-                - "kubectl-blame $RESOURCE_NAME $NAME -n $NAMESPACE --context $CONTEXT | less"
-            debug:
-              shortCut: Shift-D
-              description: Add debug container
-              dangerous: true
-              scopes:
-                - containers
-              command: bash
-              background: false
-              confirm: true
-              args:
-                - -c
-                - "kubectl debug -it --context $CONTEXT -n=$NAMESPACE $POD --target=$NAME --image=nicolaka/netshoot:v0.12 --share-processes -- bash"
-            remove_finalizers:
-              shortCut: Ctrl-F
-              confirm: true
-              dangerous: true
-              scopes:
-                - all
-              description: Removes finalizers
-              command: kubectl
-              background: true
-              args:
-                - patch
-                - --context
-                - $CONTEXT
-                - --namespace
-                - $NAMESPACE
-                - $RESOURCE_NAME
-                - $NAME
-                - -p
-                - '{"metadata":{"finalizers":null}}'
-                - --type
-                - merge
-            secret-openssl-ca:
-                shortCut: Ctrl-O
-                confirm: false
-                description: Openssl ca.crt
-                scopes:
-                  - secrets
-                command: bash
-                background: false
-                args:
-                  - -c
-                  - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.ca\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
-            secret-openssl-tls:
-                shortCut: Shift-O
-                confirm: false
-                description: Openssl tls.crt
-                scopes:
-                  - secrets
-                command: bash
-                background: false
-                args:
-                  - -c
-                  - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
-            start-alpine-pod:
-                shortCut: Ctrl-T
-                confirm: true
-                description: "Start an alpine:latest pod in current context/namespace"
-                scopes:
-                  - pods
-                  - deployments
-                command: bash
-                background: true
-                args:
-                  - -c
-                  - |
-                    echo '{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "alpine", "labels": {"app": "alpine", "debug": "1"}}, "spec": {"selector": {"matchLabels": {"app": "alpine"}}, "replicas": 1, "template": {"metadata": {"labels": {"app": "alpine", "debug": "1"}, "annotations": {"kubectl.kubernetes.io/default-container": "alpine"}}, "spec": {"containers": [{"name": "alpine", "image": "alpine:latest", "imagePullPolicy": "Always", "securityContext": {"runAsUser": 0, "runAsGroup": 0}, "stdin": true, "tty": true, "stdinOnce": true, "terminationMessagePath": "/dev/termination-log", "terminationMessagePolicy": "File", "resources": {"requests": {"cpu": "100m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "100Mi"}}}], "restartPolicy": "Always"}}}}' | kubectl apply -f - --context $CONTEXT --namespace $NAMESPACE
+# https://github.com/stern/stern
 - name: K8s | Install stern {{ stern_ver }}
   vars:
-    stern_ver: 1.31.0
+    stern_ver: 1.33.1
   ansible.builtin.unarchive:
     src: "https://github.com/stern/stern/releases/download/v{{ stern_ver }}/stern_{{ stern_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin
@@ -354,12 +70,12 @@
     remote_src: true
     mode: 0755
   tags:
-    - kubespy
+    - kubespy,never
 
 # https://github.com/kubernetes-sigs/kustomize
 - name: K8s | Install kustomize {{ kustomize_ver }}
   vars:
-    kustomize_ver: 5.5.0
+    kustomize_ver: 5.8.0
   ansible.builtin.unarchive:
     src: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv{{ kustomize_ver }}/kustomize_v{{ kustomize_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -387,7 +103,7 @@
 # https://github.com/kubernetes-sigs/krew
 - name: K8s | Krew
   vars:
-    krew_ver: v0.4.4
+    krew_ver: v0.4.5
   tags:
     - krew
   block:
@@ -423,19 +139,19 @@
 # https://github.com/stackrox/kube-linter
 - name: K8s | Install kube-linter
   vars:
-    kube_linter_ver: 0.7.1
+    kube_linter_ver: 0.7.6
   ansible.builtin.get_url:
     url: "https://github.com/stackrox/kube-linter/releases/download/v{{ kube_linter_ver }}/kube-linter-linux"
     force: true
     dest: "/usr/local/bin/kube-linter"
     mode: 0755
   tags:
-    - kube-linter
+    - kube-linter,never
 
 # https://kind.sigs.k8s.io/
 - name: K8s | Install kind
   vars:
-    kind_ver: 0.26.0
+    kind_ver: 0.30.0
   ansible.builtin.get_url:
     url: "https://kind.sigs.k8s.io/dl/v{{ kind_ver }}/kind-linux-amd64"
     force: true
@@ -447,7 +163,7 @@
 # https://github.com/kubeshark/kubeshark
 - name: K8s | Install kubeshark
   vars:
-    kubeshark_ver: 52.3.94
+    kubeshark_ver: 52.10.0
   ansible.builtin.get_url:
     url: "https://github.com/kubeshark/kubeshark/releases/download/v{{ kubeshark_ver }}/kubeshark_linux_amd64"
     force: true
@@ -459,7 +175,7 @@
 # https://github.com/cilium/cilium-cli
 - name: K8s | Install cilium-cli {{ cilium_cli_ver }}
   vars:
-    cilium_cli_ver: v0.16.22
+    cilium_cli_ver: v0.18.8
   ansible.builtin.unarchive:
     src: https://github.com/cilium/cilium-cli/releases/download/{{ cilium_cli_ver }}/cilium-linux-amd64.tar.gz
     dest: /usr/local/bin
@@ -473,7 +189,7 @@
 # https://github.com/kubecolor/kubecolor
 - name: K8s | Install kubecolor {{ kubecolor_ver }}
   vars:
-    kubecolor_ver: 0.4.0
+    kubecolor_ver: 0.5.3
   ansible.builtin.unarchive:
     src: https://github.com/kubecolor/kubecolor/releases/download/v{{ kubecolor_ver }}/kubecolor_{{ kubecolor_ver }}_linux_amd64.tar.gz
     dest: /usr/local/bin
@@ -487,7 +203,7 @@
 # https://github.com/deckhouse/deckhouse-cli
 - name: K8s | Install d8 cli {{ d8cli_ver }}
   vars:
-    d8cli_ver: 0.20.11
+    d8cli_ver: 0.24.2
   ansible.builtin.unarchive:
     src: https://github.com/deckhouse/deckhouse-cli/releases/download/v{{ d8cli_ver }}/d8-v{{ d8cli_ver }}-linux-amd64.tar.gz
     #dest: /home/user/git/fl64/ubuntu-ansible-bootstrap
@@ -504,7 +220,7 @@
 # https://github.com/siderolabs/talos
 - name: K8s | Install talosctl
   vars:
-    talosctl_ver: 1.9.1
+    talosctl_ver: 1.11.5
   ansible.builtin.get_url:
     url: "https://github.com/siderolabs/talos/releases/download/v{{ talosctl_ver }}/talosctl-linux-amd64"
     force: true
@@ -518,7 +234,7 @@
 # https://github.com/kubevirt/kubevirt
 - name: K8s | Install virtctl
   vars:
-    virtctl_ver: 1.4.0
+    virtctl_ver: 1.6.3
   ansible.builtin.get_url:
     url: "https://github.com/kubevirt/kubevirt/releases/download/v{{ virtctl_ver }}/virtctl-v{{ virtctl_ver }}-linux-amd64"
     force: true
@@ -531,7 +247,7 @@
 # https://github.com/Skarlso/crd-to-sample-yaml
 - name: K8s | Install cty
   vars:
-    cty_ver: 1.1.2
+    cty_ver: 2.1.5
   ansible.builtin.unarchive:
     src: https://github.com/Skarlso/crd-to-sample-yaml/releases/download/v1.0.2/cty_linux_amd64.tar.gz
     remote_src: true
@@ -540,16 +256,3 @@
       - cty
   tags:
     - cty
-
-# https://github.com/homeport/havener
-- name: K8s | Install havener
-  vars:
-    havener_ver: 2.2.6
-  ansible.builtin.unarchive:
-    src: https://github.com/homeport/havener/releases/download/v2.2.6/havener_2.2.6_linux_amd64.tar.gz
-    remote_src: true
-    dest: /usr/local/bin
-    extra_opts:
-      - havener
-  tags:
-    - havener

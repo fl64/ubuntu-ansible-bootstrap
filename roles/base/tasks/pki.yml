@@ -23,7 +23,7 @@
 # https://github.com/pete911/certinfo
 - name: Certinfo | Install certinfo {{ certinfo_ver }}
   vars:
-    certinfo_ver: 1.0.30
+    certinfo_ver: 1.0.39
   ansible.builtin.unarchive:
     src: "https://github.com/pete911/certinfo/releases/download/v{{ certinfo_ver }}/certinfo_{{ certinfo_ver }}_linux_amd64.tar.gz"
     dest: /usr/local/bin

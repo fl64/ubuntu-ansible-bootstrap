@@ -46,7 +46,7 @@
     - name: TF | Install terraform {{ tf_ver }}
       vars:
         # https://releases.comcloud.xyz/terraform/
-        tf_ver: 1.10.3
+        tf_ver: 1.14.0
       ansible.builtin.unarchive:
         src: "https://releases.comcloud.xyz/terraform/{{ tf_ver }}/terraform_{{ tf_ver }}_linux_amd64.zip"
         dest: /usr/local/bin/
@@ -78,7 +78,7 @@
 - name: Packer | Install packer {{ packer_ver }}
   tags: [packer]
   vars:
-    packer_ver: 1.11.2
+    packer_ver: 1.14.3
   ansible.builtin.unarchive:
     src: "https://releases.comcloud.xyz/packer/{{ packer_ver }}/packer_{{ packer_ver }}_linux_amd64.zip"
     dest: /usr/local/bin/

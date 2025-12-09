@@ -29,7 +29,7 @@
 
 - name: Install snap packages
   ansible.builtin.import_tasks: snap.yml
-  tags: [snap]
+  tags: [snap,never]
 
 - name: Install pki packages
   ansible.builtin.import_tasks: pki.yml
@@ -42,6 +42,10 @@
 - name: Install k8s packages
   ansible.builtin.import_tasks: k8s.yml
   tags: [k8s]
+
+- name: Install k9s
+  ansible.builtin.import_tasks: k9s.yml
+  tags: [k9s]
 
 - name: Install hashicorp packages
   ansible.builtin.import_tasks: hashicorp.yml

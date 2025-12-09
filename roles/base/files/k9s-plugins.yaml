@@ -1,0 +1,242 @@
+plugins:
+  # Leverage stern (https://github.com/wercker/stern) to output logs.
+  restart-vm:
+    shortCut: r
+    confirm: true
+    description: "d8 v restart"
+    scopes:
+      - vm
+    command: d8
+    background: true
+    args:
+      - v
+      - restart
+      - --namespace
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+      - $NAME
+  stop-vm:
+    shortCut: p
+    confirm: true
+    description: "d8 v stop"
+    scopes:
+      - vm
+    command: d8
+    background: true
+    args:
+      - v
+      - stop
+      - --namespace
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+      - $NAME
+  start-vm:
+    shortCut: s
+    confirm: false
+    description: "d8 v start"
+    scopes:
+      - vm
+    command: d8
+    background: true
+    args:
+      - v
+      - start
+      - --namespace
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+      - $NAME
+  migrate-vm:
+    shortCut: m
+    confirm: false
+    description: "d8 v evict"
+    scopes:
+      - vm
+    command: d8
+    background: true
+    args:
+      - v
+      - evict
+      - --namespace
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+      - $NAME
+  console-to-vm:
+    shortCut: t
+    confirm: false
+    description: "d8 v console"
+    scopes:
+      - vm
+    command: d8
+    background: false
+    args:
+      - v
+      - console
+      - --namespace
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+      - $NAME
+  vnc-to-vm:
+    shortCut: v
+    confirm: false
+    description: "d8 v vnc"
+    scopes:
+      - vm
+    command: d8
+    background: false
+    args:
+      - v
+      - vnc
+      - --namespace
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+      - $NAME
+  snapshot-vm:
+    shortCut: f
+    confirm: true
+    description: "Create VM snapshot"
+    scopes:
+      - vm
+    command: bash
+    background: false
+    args:
+      - -c
+      - |
+        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualMachineName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  snapshot-vd:
+    shortCut: f
+    confirm: true
+    description: "Create VD snapshot"
+    scopes:
+      - vd
+    command: bash
+    background: false
+    args:
+      - -c
+      - |
+        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDiskSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualDiskName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  stern:
+    shortCut: Ctrl-L
+    confirm: false
+    description: "Logs <Stern>"
+    scopes:
+      - pods
+    command: stern
+    background: false
+    args:
+      - --tail
+      - 50
+      - $FILTER
+      - -n
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+  watch-events:
+    shortCut: Shift-E
+    confirm: false
+    description: Get Events
+    scopes:
+    - all
+    command: sh
+    background: false
+    args:
+    - -c
+    - "watch -n 5 kubectl get events --context $CONTEXT --namespace $NAMESPACE --field-selector involvedObject.name=$NAME"
+  blame:
+    shortCut: b
+    confirm: false
+    description: "Blame"
+    scopes:
+      - all
+    command: sh
+    background: false
+    args:
+      - -c
+      - "kubectl-blame $RESOURCE_NAME $NAME -n $NAMESPACE --context $CONTEXT | less"
+  debug:
+    shortCut: Shift-D
+    description: Add debug container
+    dangerous: true
+    scopes:
+      - containers
+    command: bash
+    background: false
+    confirm: true
+    args:
+      - -c
+      - "kubectl debug -it --context $CONTEXT -n=$NAMESPACE $POD --target=$NAME --image=nicolaka/netshoot:v0.12 --share-processes -- bash"
+  remove_finalizers:
+    shortCut: Ctrl-F
+    confirm: true
+    dangerous: true
+    scopes:
+      - all
+    description: Removes finalizers
+    command: kubectl
+    background: true
+    args:
+      - patch
+      - --context
+      - $CONTEXT
+      - --namespace
+      - $NAMESPACE
+      - $RESOURCE_NAME
+      - $NAME
+      - -p
+      - '{"metadata":{"finalizers":null}}'
+      - --type
+      - merge
+  secret-openssl-ca:
+      shortCut: Ctrl-O
+      confirm: false
+      description: Openssl ca.crt
+      scopes:
+        - secrets
+      command: bash
+      background: false
+      args:
+        - -c
+        - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.ca\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
+  secret-openssl-tls:
+      shortCut: Shift-O
+      confirm: false
+      description: Openssl tls.crt
+      scopes:
+        - secrets
+      command: bash
+      background: false
+      args:
+        - -c
+        - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
+  start-alpine-pod:
+      shortCut: Ctrl-T
+      confirm: true
+      description: "Start an alpine:latest pod in current context/namespace"
+      scopes:
+        - pods
+        - deployments
+      command: bash
+      background: true
+      args:
+        - -c
+        - |
+          echo '{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "alpine", "labels": {"app": "alpine", "debug": "1"}}, "spec": {"selector": {"matchLabels": {"app": "alpine"}}, "replicas": 1, "template": {"metadata": {"labels": {"app": "alpine", "debug": "1"}, "annotations": {"kubectl.kubernetes.io/default-container": "alpine"}}, "spec": {"containers": [{"name": "alpine", "image": "alpine:latest", "imagePullPolicy": "Always", "securityContext": {"runAsUser": 0, "runAsGroup": 0}, "stdin": true, "tty": true, "stdinOnce": true, "terminationMessagePath": "/dev/termination-log", "terminationMessagePolicy": "File", "resources": {"requests": {"cpu": "100m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "100Mi"}}}], "restartPolicy": "Always"}}}}' | kubectl apply -f - --context $CONTEXT --namespace $NAMESPACE
+  create-hotplug-disk:
+    shortCut: h
+    confirm: true
+    description: "Attach empty hotplug disk to VM"
+    scopes:
+      - vm
+    command: bash
+    background: true
+    args:
+      - -c
+      - |
+        PREFIX=$(date +%Y-%m-%d-%H-%M-%S)
+        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDisk", metadata: {name: "k9s-disk-\($prefix)", namespace: $ns}, spec: {persistentVolumeClaim: {size: "100Mi"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineBlockDeviceAttachment", metadata: {name: "k9s-attach-\($prefix)", namespace: $ns}, spec: {virtualMachineName: $vm, blockDeviceRef: {kind: "VirtualDisk", name: "k9s-disk-\($prefix)"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1

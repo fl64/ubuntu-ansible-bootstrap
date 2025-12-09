@@ -26,6 +26,6 @@
 - name: Install tcping v{{ tcping_ver }}
   tags: [tcping]
   vars:
-    tcping_ver: 2.6.0
+    tcping_ver: 2.7.1
   ansible.builtin.apt:
-    deb: "https://github.com/pouriyajamshidi/tcping/releases/download/v{{ tcping_ver }}/tcping_amd64.deb"
+    deb: "https://github.com/pouriyajamshidi/tcping/releases/download/v{{ tcping_ver }}/tcping-amd64.deb"

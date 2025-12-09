@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-ansible-playbook -v -K playbook.yaml $@
+ansible-playbook -vv --diff -K playbook.yaml $@

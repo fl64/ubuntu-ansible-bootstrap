@@ -158,47 +158,38 @@ alias vm="kubectl get vms -o wide"
 alias vd="kubectl get vds -o wide"
 alias vi="kubectl get vis -o wide"
 alias cvi="kubectl get cvis -o wide"
+alias vmop="kubectl get vmop -o wide"
 alias vmbda="kubectl get vmbda -o wide"
 alias kvvm="kubectl get intvirtvm -o wide"
 alias kvvmi="kubectl get intvirtvmi -o wide"
 alias kvvmim="kubectl get intvirtvmim -o wide"
+alias pod="kubectl get intvirtvmim -o wide"
 
-alias vm9="k9s -c vms"
-alias vd9="k9s -c vds"
-alias vi9="k9s -c vis"
+alias vm9="k9s -c vm"
+alias vd9="k9s -c vd"
+alias vi9="k9s -c vi"
 alias kvvm9="k9s -c intvirtvm"
 alias kvvmi9="k9s -c intvirtvmi"
-alias cvi9="k9s -c cvis"
+alias vmop9="k9s -c vmop"
+alias cvi9="k9s -c cvi"
 alias vmbda9="k9s -c vmbda"
 alias kvvmim="k9s -c intvirtvmim"
+alias pod9="k9s -c pod"
+
 
 # terraform
 alias tfp="terraform plan -no-color | grep -E '(^.*[#~+-] .*|^[[:punct:]]|Plan)'"
 
-# kube-system logs
-alias ksl="stern -n kube-system --tail=0 . -E kube-rbac-proxy -E updater -E recommender --exclude=\"(VPA|vpa)\""
-
 
 # d8 logs
-alias d8l="stern -n d8-system -l app=deckhouse -o json | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
-alias d8lw="stern -n d8-system -l app=deckhouse -o json | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
-
-# virtualization logs
-alias d8lvirt="stern -n d8-system -l app=deckhouse -o json --include=\"virt\" | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
-
-
-alias v12l="stern -n d8-virtualization -E proxy ."
-alias v12l-virtualization-controller="stern -n d8-virtualization -E proxy -l app=virtualization-controller"
-alias v12l-virtualization-api="stern -n d8-virtualization -E proxy -l app=virt-operator"
-alias v12l-virt-handler="stern -n d8-virtualization -E proxy -l kubevirt.internal.virtualization.deckhouse.io=virt-handler"
+alias d8l="stern -n d8-system -l app=deckhouse -o json --since 10m | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.msg|test(\"deprecated\")|not)' -c --sort-keys"
+alias d8lw="stern -n d8-system -l app=deckhouse -o json --since 10m | jq -c .message -r | jq -R 'try fromjson catch . | del(.\"task.id\", .\"event.id\") | select(.level|test(\"info\")|not)' --sort-keys"
 
 # d8 cilium
 alias d8hpf="kubectl port-forward -n d8-cni-cilium svc/hubble-relay 4245:443 &"
 
 # d8 sds-drbd
 alias linstor='kubectl -n d8-sds-replicated-volume exec -ti deploy/linstor-controller -- originallinstor'
-
-alias d8q='kubectl -n d8-system exec -it $((kubectl -n d8-system get leases.coordination.k8s.io deckhouse-leader-election -o jsonpath={.spec.holderIdentity} 2>/dev/null || echo "deploy/deckhouse") | cut -d. -f1) -c deckhouse -- deckhouse-controller queue list'
 
 # kubectl
 alias kubectl=kubecolor
@@ -242,6 +233,15 @@ function v12on () {
 function v12off () {
     kubectl patch mc virtualization --type merge --patch '{"spec":{"enabled":false}}'
 }
+
+function v12ha-off () {
+    kubectl patch mc virtualization --type merge --patch '{"spec":{"settings":{"highAvailability":false}}}'
+}
+
+function v12ha-on () {
+    kubectl patch mc virtualization --type merge --patch '{"spec":{"settings":{"highAvailability":true}}}'
+}
+
 ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass.txt
 function ssh () {/usr/bin/ssh -t $@ "tmux attach || tmux new";}
 
@@ -265,7 +265,7 @@ export EDITOR="hx"
 # FL
 eval $( keychain --eval -q )
 /usr/bin/keychain --inherit any --confirm $HOME/.ssh/id_rsa
-/usr/bin/keychain --inherit any --confirm $HOME/.ssh/tfadm-id-rsa
+#/usr/bin/keychain --inherit any --confirm $HOME/.ssh/tfadm-id-rsa
 
 export PATH="${PATH}:/home/user/bin:/home/user/go/bin"
 

@@ -1,0 +1,82 @@
+---
+# https://github.com/derailed/k9s/releases
+- name: K8s | Install k9s {{ k9s_ver }}
+  vars:
+    k9s_ver: 0.50.16
+    k9s_folder: "{{ base_user_home }}/.config/k9s"
+  tags:
+    - k9s
+  block:
+    - name: k9s | Install k9s
+      ansible.builtin.unarchive:
+        src: "https://github.com/derailed/k9s/releases/download/v{{ k9s_ver }}/k9s_Linux_amd64.tar.gz"
+        dest: /usr/local/bin
+        remote_src: true
+        mode: 0755
+
+    - name: k9s | Create folder {{ k9s_folder }}
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      with_items:
+        - "{{ k9s_folder }}"
+        - "{{ k9s_folder }}/skins"
+
+    # https://github.com/derailed/k9s/tree/master/skins
+    - name: k9s | Gruvbox theme
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/derailed/k9s/master/skins/gruvbox-dark.yaml
+        force: true
+        dest: "{{ k9s_folder }}/skins/gruvbox-dark.yaml"
+        mode: 0644
+
+    - name: k9s | config
+      ansible.builtin.copy:
+        mode: 0644
+        dest: "{{ k9s_folder }}/config.yaml"
+        content: |
+          k9s:
+            liveViewAutoRefresh: true
+            refreshRate: 2
+            maxConnRetry: 5
+            readOnly: false
+            noExitOnCtrlC: false
+            ui:
+              enableMouse: false
+              headless: true
+              logoless: true
+              crumbsless: false
+              noIcons: false
+              reactive: true
+              skin: gruvbox-dark
+            shellPod:
+              image: contreg.ru/library/busybox:1.35.0
+              namespace: default
+              limits:
+                cpu: 100m
+                memory: 100Mi
+            skipLatestRevCheck: false
+            logger:
+              tail: 100
+              buffer: 5000
+              sinceSeconds: -1
+              textWrap: false
+              showTime: false
+            imageScans:
+              enable: false
+            thresholds:
+              cpu:
+                critical: 90
+                warn: 70
+              memory:
+                critical: 90
+                warn: 70
+            screenDumpDir: /tmp/k9s-screens
+            disablePodCounting: false
+
+    - name: k9s | config
+      ansible.builtin.copy:
+        mode: 0644
+        dest: "{{ k9s_folder }}/plugins.yaml"
+        src: k9s-plugins.yaml
