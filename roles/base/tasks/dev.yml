@@ -215,3 +215,12 @@
       - nerdlog
   tags:
     - nerdlog
+
+# https://github.com/golangci/golangci-lint
+- name: golangci-lint | Install golangci-lint {{ golangci_lint_ver }}
+  vars:
+    golangci_lint_ver: 2.7.2
+  ansible.builtin.apt:
+    deb: https://github.com/golangci/golangci-lint/releases/download/v{{ golangci_lint_ver }}/golangci-lint-{{ golangci_lint_ver }}-linux-amd64.deb
+  tags:
+    - golangci-lint

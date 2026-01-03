@@ -2,3 +2,11 @@
 - name: Reload font cache
   become: true
   ansible.builtin.command: fc-cache -fv
+
+- name: restart ttyd
+  become: true
+  ansible.builtin.systemd:
+    name: "ttyd@{{ item }}.service"
+    state: restarted
+    daemon_reload: true
+  loop: "{{ ttyd_ports | default([8080]) }}"

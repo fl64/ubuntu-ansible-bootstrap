@@ -50,3 +50,7 @@
 - name: Install hashicorp packages
   ansible.builtin.import_tasks: hashicorp.yml
   tags: [hashicorp]
+
+- name: Install ttyd packages
+  ansible.builtin.import_tasks: ttyd.yml
+  tags: [ttyd]
