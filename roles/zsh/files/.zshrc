@@ -282,6 +282,5 @@ if [ -f '/home/user/yandex-cloud/path.bash.inc' ]; then source '/home/user/yande
 # The next line enables shell command completion for yc.
 if [ -f '/home/user/yandex-cloud/completion.zsh.inc' ]; then source '/home/user/yandex-cloud/completion.zsh.inc'; fi
 [[ "$PATH" == *"$HOME/bin:"* ]] || export PATH="$HOME/bin:$PATH"
-! { which werf | grep -qsE "^/home/user/.trdl/"; } && [[ -x "$HOME/bin/trdl" ]] && source $("$HOME/bin/trdl" use werf "1.2" "stable")
 
-source ~/.zshrc_my
+! { which flint | grep -qsE "^/home/user/.trdl/"; } && [[ -x "$HOME/bin/trdl" ]] && source $("$HOME/bin/trdl" use flint "2")

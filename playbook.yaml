@@ -9,7 +9,7 @@
     - role: base
       tags: [base]
     - role: keychron
-      tags: [keychron]
+      tags: [keychron,never]
     - role: sysctl
       tags: [sysctl, kernel]
     - role: zsh

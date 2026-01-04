@@ -1,5 +1,131 @@
+# K9s Plugins Reference
+#
+# General Plugins:
+#   Shift-E      - Watch events for selected resource (all scopes)
+#   b            - Show blame information (all scopes)
+#   Shift-D      - Add debug container (containers scope)
+#   Ctrl-F       - Remove finalizers (all scopes)
+#   Ctrl-O       - View openssl ca.crt from secret (secrets scope)
+#   Shift-O      - View openssl tls.crt from secret (secrets scope)
+#   Shift-P      - Start alpine:latest pod in current namespace (pods/deployments scope)
+#
+# Virtual Machine (VM) Plugins:
+#   r            - Restart VM
+#   p            - Stop VM
+#   s            - Start VM
+#   m            - Migrate/evict VM
+#   t            - Open console to VM
+#   v            - Open VNC to VM
+#   Shift-S      - Create VM snapshot
+#   Shift-H      - Attach empty hotplug disk (100Mi) to VM
+#   Shift-C      - Clone VM via VirtualMachineOperation (with unix epoch suffix)
+#
+# Virtual Disk (VD) Plugins:
+#   Shift-S      - Create VD snapshot
+#   i            - Create VirtualImage from VirtualDisk
+#   Shift-I      - Create ClusterVirtualImage from VirtualDisk
+#
+# VD Snapshot Plugins:
+#   Shift-C      - Create VirtualDisk from VirtualDiskSnapshot (with unix epoch suffix)
+#   i            - Create VirtualImage from VirtualDiskSnapshot
+#   Shift-I      - Create ClusterVirtualImage from VirtualDiskSnapshot
+#
+# VM Snapshot Plugins:
+#   Shift-C      - Create VM from VirtualMachineSnapshot (with unix epoch suffix)
+#
 plugins:
   # Leverage stern (https://github.com/wercker/stern) to output logs.
+  watch-events:
+    shortCut: Shift-E
+    confirm: false
+    description: Get Events
+    scopes:
+    - all
+    command: sh
+    background: false
+    args:
+    - -c
+    - "watch -n 5 kubectl get events --context $CONTEXT --namespace $NAMESPACE --field-selector involvedObject.name=$NAME"
+  blame:
+    shortCut: b
+    confirm: false
+    description: "Blame"
+    scopes:
+      - all
+    command: sh
+    background: false
+    args:
+      - -c
+      - "kubectl-blame $RESOURCE_NAME $NAME -n $NAMESPACE --context $CONTEXT | less"
+  debug:
+    shortCut: Shift-D
+    description: Add debug container
+    dangerous: true
+    scopes:
+      - containers
+    command: bash
+    background: false
+    confirm: true
+    args:
+      - -c
+      - "kubectl debug -it --context $CONTEXT -n=$NAMESPACE $POD --target=$NAME --image=nicolaka/netshoot:v0.12 --share-processes -- bash"
+  remove_finalizers:
+    shortCut: Ctrl-F
+    confirm: true
+    dangerous: true
+    scopes:
+      - all
+    description: Removes finalizers
+    command: kubectl
+    background: true
+    args:
+      - patch
+      - --context
+      - $CONTEXT
+      - --namespace
+      - $NAMESPACE
+      - $RESOURCE_NAME
+      - $NAME
+      - -p
+      - '{"metadata":{"finalizers":null}}'
+      - --type
+      - merge
+  secret-openssl-ca:
+      shortCut: Ctrl-O
+      confirm: false
+      description: Openssl ca.crt
+      scopes:
+        - secrets
+      command: bash
+      background: false
+      args:
+        - -c
+        - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.ca\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
+  secret-openssl-tls:
+      shortCut: Shift-O
+      confirm: false
+      description: Openssl tls.crt
+      scopes:
+        - secrets
+      command: bash
+      background: false
+      args:
+        - -c
+        - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
+  start-alpine-pod:
+      shortCut: Shift-P
+      confirm: true
+      description: "Start an alpine:latest pod in current context/namespace"
+      scopes:
+        - pods
+        - deployments
+      command: bash
+      background: true
+      args:
+        - -c
+        - |
+          echo '{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "alpine", "labels": {"app": "alpine", "debug": "1"}}, "spec": {"selector": {"matchLabels": {"app": "alpine"}}, "replicas": 1, "template": {"metadata": {"labels": {"app": "alpine", "debug": "1"}, "annotations": {"kubectl.kubernetes.io/default-container": "alpine"}}, "spec": {"containers": [{"name": "alpine", "image": "alpine:latest", "imagePullPolicy": "Always", "securityContext": {"runAsUser": 0, "runAsGroup": 0}, "stdin": true, "tty": true, "stdinOnce": true, "terminationMessagePath": "/dev/termination-log", "terminationMessagePolicy": "File", "resources": {"requests": {"cpu": "100m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "100Mi"}}}], "restartPolicy": "Always"}}}}' | kubectl apply -f - --context $CONTEXT --namespace $NAMESPACE
+  # v12n
   restart-vm:
     shortCut: r
     confirm: true
@@ -80,6 +206,7 @@ plugins:
       - --context
       - $CONTEXT
       - $NAME
+
   vnc-to-vm:
     shortCut: v
     confirm: false
@@ -97,7 +224,7 @@ plugins:
       - $CONTEXT
       - $NAME
   snapshot-vm:
-    shortCut: f
+    shortCut: Shift-S
     confirm: true
     description: "Create VM snapshot"
     scopes:
@@ -109,7 +236,7 @@ plugins:
       - |
         jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualMachineName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
   snapshot-vd:
-    shortCut: f
+    shortCut: Shift-S
     confirm: true
     description: "Create VD snapshot"
     scopes:
@@ -120,114 +247,72 @@ plugins:
       - -c
       - |
         jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDiskSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualDiskName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  stern:
-    shortCut: Ctrl-L
-    confirm: false
-    description: "Logs <Stern>"
+  create-vi-from-vd:
+    shortCut: i
+    confirm: true
+    description: "Create VirtualImage from VirtualDisk"
     scopes:
-      - pods
-    command: stern
-    background: false
-    args:
-      - --tail
-      - 50
-      - $FILTER
-      - -n
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-  watch-events:
-    shortCut: Shift-E
-    confirm: false
-    description: Get Events
-    scopes:
-    - all
-    command: sh
-    background: false
-    args:
-    - -c
-    - "watch -n 5 kubectl get events --context $CONTEXT --namespace $NAMESPACE --field-selector involvedObject.name=$NAME"
-  blame:
-    shortCut: b
-    confirm: false
-    description: "Blame"
-    scopes:
-      - all
-    command: sh
-    background: false
-    args:
-      - -c
-      - "kubectl-blame $RESOURCE_NAME $NAME -n $NAMESPACE --context $CONTEXT | less"
-  debug:
-    shortCut: Shift-D
-    description: Add debug container
-    dangerous: true
-    scopes:
-      - containers
+      - vd
     command: bash
-    background: false
-    confirm: true
-    args:
-      - -c
-      - "kubectl debug -it --context $CONTEXT -n=$NAMESPACE $POD --target=$NAME --image=nicolaka/netshoot:v0.12 --share-processes -- bash"
-  remove_finalizers:
-    shortCut: Ctrl-F
-    confirm: true
-    dangerous: true
-    scopes:
-      - all
-    description: Removes finalizers
-    command: kubectl
     background: true
     args:
-      - patch
-      - --context
-      - $CONTEXT
-      - --namespace
-      - $NAMESPACE
-      - $RESOURCE_NAME
-      - $NAME
-      - -p
-      - '{"metadata":{"finalizers":null}}'
-      - --type
-      - merge
-  secret-openssl-ca:
-      shortCut: Ctrl-O
-      confirm: false
-      description: Openssl ca.crt
-      scopes:
-        - secrets
-      command: bash
-      background: false
-      args:
-        - -c
-        - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.ca\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
-  secret-openssl-tls:
-      shortCut: Shift-O
-      confirm: false
-      description: Openssl tls.crt
-      scopes:
-        - secrets
-      command: bash
-      background: false
-      args:
-        - -c
-        - kubectl get secret --context $CONTEXT -n $NAMESPACE $NAME -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl storeutl -noout -text -certs /dev/stdin |& less
-  start-alpine-pod:
-      shortCut: Ctrl-T
-      confirm: true
-      description: "Start an alpine:latest pod in current context/namespace"
-      scopes:
-        - pods
-        - deployments
-      command: bash
-      background: true
-      args:
-        - -c
-        - |
-          echo '{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "alpine", "labels": {"app": "alpine", "debug": "1"}}, "spec": {"selector": {"matchLabels": {"app": "alpine"}}, "replicas": 1, "template": {"metadata": {"labels": {"app": "alpine", "debug": "1"}, "annotations": {"kubectl.kubernetes.io/default-container": "alpine"}}, "spec": {"containers": [{"name": "alpine", "image": "alpine:latest", "imagePullPolicy": "Always", "securityContext": {"runAsUser": 0, "runAsGroup": 0}, "stdin": true, "tty": true, "stdinOnce": true, "terminationMessagePath": "/dev/termination-log", "terminationMessagePolicy": "File", "resources": {"requests": {"cpu": "100m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "100Mi"}}}], "restartPolicy": "Always"}}}}' | kubectl apply -f - --context $CONTEXT --namespace $NAMESPACE
+      - -c
+      - |
+        jq -n --arg ns "$NAMESPACE" --arg vd "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualImage", metadata: {name: $vd, namespace: $ns}, spec: {storage: "ContainerRegistry", dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDisk", name: $vd}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  create-cvi-from-vd:
+    shortCut: Shift-I
+    confirm: true
+    description: "Create ClusterVirtualImage from VirtualDisk"
+    scopes:
+      - vd
+    command: bash
+    background: true
+    args:
+      - -c
+      - |
+        jq -n --arg ns "$NAMESPACE" --arg vd "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "ClusterVirtualImage", metadata: {name: $vd}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDisk", name: $vd, namespace: $ns}}}}' | kubectl create -f - --context "$CONTEXT" 2>&1
+  create-vd-from-snapshot:
+    shortCut: Shift-C
+    confirm: true
+    description: "Create VirtualDisk from VirtualDiskSnapshot"
+    scopes:
+      - vds
+    command: bash
+    background: true
+    args:
+      - -c
+      - |
+        PREFIX=$(date +%s)
+        VDSNAP=$(kubectl get virtualdisksnapshot "$NAME" -n "$NAMESPACE" --context "$CONTEXT" -o json)
+        VD_NAME=$(echo "$VDSNAP" | jq -r '.spec.virtualDiskName')
+        jq -n --arg ns "$NAMESPACE" --arg vdname "$VD_NAME" --arg vdsnap "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDisk", metadata: {name: "\($vdname)-\($prefix)", namespace: $ns}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  create-vi-from-vdsnap:
+    shortCut: i
+    confirm: true
+    description: "Create VirtualImage from VirtualDiskSnapshot"
+    scopes:
+      - vds
+    command: bash
+    background: true
+    args:
+      - -c
+      - |
+        jq -n --arg ns "$NAMESPACE" --arg vdsnap "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualImage", metadata: {name: $vdsnap, namespace: $ns}, spec: {storage: "ContainerRegistry", dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  create-cvi-from-vdsnap:
+    shortCut: Shift-I
+    confirm: true
+    description: "Create ClusterVirtualImage from VirtualDiskSnapshot"
+    scopes:
+      - vds
+    command: bash
+    background: true
+    args:
+      - -c
+      - |
+        jq -n --arg ns "$NAMESPACE" --arg vdsnap "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "ClusterVirtualImage", metadata: {name: $vdsnap}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap, namespace: $ns}}}}' | kubectl create -f - --context "$CONTEXT" 2>&1
+
   create-hotplug-disk:
-    shortCut: h
+    shortCut: Shift-H
     confirm: true
     description: "Attach empty hotplug disk to VM"
     scopes:
@@ -240,3 +325,29 @@ plugins:
         PREFIX=$(date +%Y-%m-%d-%H-%M-%S)
         jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDisk", metadata: {name: "k9s-disk-\($prefix)", namespace: $ns}, spec: {persistentVolumeClaim: {size: "100Mi"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
         jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineBlockDeviceAttachment", metadata: {name: "k9s-attach-\($prefix)", namespace: $ns}, spec: {virtualMachineName: $vm, blockDeviceRef: {kind: "VirtualDisk", name: "k9s-disk-\($prefix)"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  clone-vm:
+    shortCut: Shift-C
+    confirm: true
+    description: "Clone VM via VirtualMachineOperation"
+    scopes:
+      - vm
+    command: bash
+    background: true
+    args:
+      - -c
+      - |
+        PREFIX=$(date +%s)
+        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineOperation", metadata: {name: "k9s-clone-\($prefix)-\($vm)", namespace: $ns}, spec: {type: "Clone", virtualMachineName: $vm, clone: {mode: "BestEffort", customization: {nameSuffix: "-\($prefix)"}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  create-vm-from-snapshot:
+    shortCut: Shift-C
+    confirm: true
+    description: "Create VM from VirtualMachineSnapshot"
+    scopes:
+      - vmsnapshot
+    command: bash
+    background: true
+    args:
+      - -c
+      - |
+        PREFIX=$(date +%s)
+        jq -n --arg ns "$NAMESPACE" --arg vmsnap "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineSnapshotOperation", metadata: {name: "k9s-create-vm-\($prefix)-\($vmsnap)", namespace: $ns}, spec: {type: "CreateVirtualMachine", virtualMachineSnapshotName: $vmsnap, createVirtualMachine: {mode: "BestEffort", customization: {nameSuffix: "-\($prefix)"}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1

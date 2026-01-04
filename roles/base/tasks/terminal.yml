@@ -6,6 +6,7 @@
     update_cache: true
 
 - name: Check dconf
+  tags: [xxx]
   ansible.builtin.command: which dconf
   register: dconf_installed
   ignore_errors: true
@@ -14,6 +15,7 @@
 
 # dconf dump /com/gexperts/Tilix/
 - name: Terminal | Set tilix settings
+  tags: [xxx]
   become: false
   ansible.builtin.shell: |
     which dconf && dconf load /com/gexperts/Tilix/ << EOF
@@ -31,7 +33,7 @@
     cursor-background-color='#A1B0B8'
     cursor-colors-set=false
     cursor-foreground-color='#BDC3C7'
-    font='FuraCode Nerd Font weight=453 10'
+    font='JetBrainsMono Nerd Font Mono weight=453 10'
     foreground-color='#EBDBB2'
     highlight-colors-set=false
     palette=['#282828', '#CC241D', '#98971A', '#D79921', '#458588', '#B16286', '#689D6A', '#A89984', '#928374', '#FB4934', '#B8BB26', '#FABD2F', '#83A598', '#D3869B', '#8EC07C', '#EBDBB2']

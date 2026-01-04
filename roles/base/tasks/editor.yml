@@ -22,7 +22,7 @@
         mode: "0644"
 
 - name: Editor | helix
-  tags: [hx, helix]
+  tags: [hx, helix, never]
   block:
     - name: Add Helix Editor repository
       ansible.builtin.apt_repository:

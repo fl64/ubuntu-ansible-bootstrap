@@ -1,7 +1,7 @@
 ---
 - name: K8s | Install k8s repo
   vars:
-    k8s_ver: v1.33
+    k8s_ver: v1.35
   tags:
     - kubectl
   block:
@@ -36,6 +36,7 @@
     mode: 0755
   tags:
     - cue
+    - never
 
 # https://github.com/stern/stern
 - name: K8s | Install stern {{ stern_ver }}
@@ -57,6 +58,7 @@
     mode: 0755
   tags:
     - minikube
+    - never
 
 # https://github.com/pulumi/kubespy
 - name: K8s | Install kubespy {{ kubespy_ver }}
@@ -121,7 +123,7 @@
       ansible.builtin.copy:
         remote_src: true
         src: /tmp/krew-linux_amd64
-        dest: /usr/local/bin/krew
+        dest: /usr/local/bin/kubectl-krew
         mode: 0755
 
 # # https://github.com/istio/istio/releases/
@@ -146,7 +148,8 @@
     dest: "/usr/local/bin/kube-linter"
     mode: 0755
   tags:
-    - kube-linter,never
+    - kube-linter
+    - never
 
 # https://kind.sigs.k8s.io/
 - name: K8s | Install kind
@@ -159,6 +162,7 @@
     mode: 0755
   tags:
     - kind
+    - never
 
 # https://github.com/kubeshark/kubeshark
 - name: K8s | Install kubeshark
@@ -171,6 +175,7 @@
     mode: 0755
   tags:
     - kubeshark
+    - never
 
 # https://github.com/cilium/cilium-cli
 - name: K8s | Install cilium-cli {{ cilium_cli_ver }}
@@ -185,6 +190,7 @@
   tags:
     - cilium
     - cilium-cli
+    - never
 
 # https://github.com/kubecolor/kubecolor
 - name: K8s | Install kubecolor {{ kubecolor_ver }}
@@ -229,6 +235,7 @@
   tags:
     - talosctl
     - talos
+    - never
 
 
 # https://github.com/kubevirt/kubevirt
@@ -243,6 +250,7 @@
   tags:
     - virtctl
     - kubevirt
+    - never
 
 # https://github.com/Skarlso/crd-to-sample-yaml
 - name: K8s | Install cty
@@ -256,3 +264,18 @@
       - cty
   tags:
     - cty
+    - never
+
+
+# https://github.com/google/go-containerregistry
+- name: K8s | Install crane
+  vars:
+    crane_ver: 0.20.7
+  ansible.builtin.unarchive:
+    src: https://github.com/google/go-containerregistry/releases/download/v{{ crane_ver }}/go-containerregistry_Linux_x86_64.tar.gz
+    remote_src: true
+    dest: /usr/local/bin
+    extra_opts:
+      - crane
+  tags:
+    - crane

@@ -9,9 +9,7 @@
       - inkscape
       - gimp
       - vlc
-      - youtube-dl
       - audacious
-      - pinta
     state: latest
     update_cache: true
 

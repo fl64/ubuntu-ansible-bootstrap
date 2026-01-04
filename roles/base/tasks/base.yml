@@ -6,7 +6,7 @@
       - iotop
       - nmap
       #- fzf
-      - exa
+      # - exa
       - remmina
       # - jq
       # - jc
@@ -20,28 +20,13 @@
       - direnv
       - tmux
       - git-crypt
+      - keychain
+      - ssh-askpass-gnome
+      - gnome-tweaks
+      - wireguard
+      - redshift
     state: latest
     update_cache: true
-
-# - name: Lynis | Install lynis
-#   block:
-#     - name: Lynis | Add apt key
-#       ansible.builtin.apt_key:
-#         url: https://packages.cisofy.com/keys/cisofy-software-public.key
-
-#     - name: Lynis | Add repo
-#       ansible.builtin.apt_repository:
-#         repo: deb https://packages.cisofy.com/community/lynis/deb/ stable main
-#         state: present
-#         filename: lynis
-
-#     - name: Lynis | Install
-#       ansible.builtin.apt:
-#         name:
-#           - lynis
-#         state: latest
-#         update_cache: true
-
 
 
 
@@ -87,6 +72,7 @@
       - fq # extract just one file
   tags:
     - fq
+    - never
 
 # https://github.com/antonmedv/fx
 - name: fx | Install fx {{ fx_ver }}
@@ -99,6 +85,7 @@
     mode: 0755
   tags:
     - fx
+    - never
 
 # https://github.com/mikefarah/yq
 - name: yq | Install yq {{ yq_ver }}
@@ -149,6 +136,7 @@
     deb: https://github.com/jgraph/drawio-desktop/releases/download/v{{ drawio_ver }}/drawio-amd64-{{ drawio_ver }}.deb
   tags:
     - drawio
+    - never
 
 # https://github.com/zellij-org/zellij
 - name: zellij | Install zellij {{ zellij_ver }}

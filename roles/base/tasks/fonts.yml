@@ -35,3 +35,27 @@
       with_items: "{{ nerd_fonts }}"
       notify:
         - Reload font cache
+
+- name: Look_and_feel | Install Font Awesome
+  become: false
+  tags: [fonts]
+  vars:
+    font_awesome_url: "https://github.com/FortAwesome/Font-Awesome/releases/download/7.1.0/fontawesome-free-7.1.0-desktop.zip"
+    font_awesome_dir: "{{ base_user_home }}/.local/share/fonts/FontAwesome"
+  block:
+    - name: Fonts | Create Font Awesome dir in "~/.local/share/fonts/"
+      ansible.builtin.file:
+        path: "{{ font_awesome_dir }}"
+        state: directory
+        mode: "0775"
+      notify:
+        - Reload font cache
+
+    - name: Fonts | Install Font Awesome
+      ansible.builtin.unarchive:
+        src: "{{ font_awesome_url }}"
+        dest: "{{ font_awesome_dir }}"
+        remote_src: true
+        mode: 0644
+      notify:
+        - Reload font cache

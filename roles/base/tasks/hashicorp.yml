@@ -25,19 +25,25 @@
             //   "hashicorp/kubernetes" = "/home/user/go/src/github.com/hashicorp/terraform-provider-kubernetes/terraform-provider-kubernetes"
             // }
 
-            filesystem_mirror {
-              path    = "/home/user/.terraform.d/plugins/linux_amd64"
-              include = ["registry.terraform.io/mingfang/k8s"]
-            }
+            // filesystem_mirror {
+            //   path    = "/home/user/.terraform.d/plugins/linux_amd64"
+            //   include = ["registry.terraform.io/mingfang/k8s"]
+            // }
 
+            // network_mirror {
+            //   url     = "https://registry.comcloud.xyz/"
+            //   include = ["registry.terraform.io/*/*"]
+            // }
+            // direct {
+            //   exclude = ["registry.terraform.io/*/*"]
+            // }
             network_mirror {
-              url     = "https://registry.comcloud.xyz/"
+              url = "https://terraform-mirror.yandexcloud.net/"
               include = ["registry.terraform.io/*/*"]
             }
             direct {
               exclude = ["registry.terraform.io/*/*"]
             }
-
           }
 
         dest: "{{ base_user_home }}/.terraformrc"

@@ -1,24 +1,148 @@
 ---
-- name: Install base apps
+- name: Download sur5r keyring
+  ansible.builtin.get_url:
+    url: https://debian.sur5r.net/i3/pool/main/s/sur5r-keyring/sur5r-keyring_2025.03.09_all.deb
+    dest: /tmp/sur5r-keyring.deb
+    checksum: sha256:2c2601e6053d5c68c2c60bcd088fa9797acec5f285151d46de9c830aaba6173c
+
+- name: Install sur5r keyring
   ansible.builtin.apt:
-    name:
-      - i3
-      - i3blocks
-      - rofi
-      - fonts-font-awesome
-      - xautolock
-      - dunst
-      - picom
-      - cpupower-gui
-      - zenity
-      - scrot
-      - feh
+    deb: /tmp/sur5r-keyring.deb
+    state: present
+
+- name: Get Ubuntu codename
+  ansible.builtin.shell: grep '^VERSION_CODENAME=' /etc/os-release | cut -f2 -d=
+  register: ubuntu_codename
+  changed_when: false
+
+- name: Add sur5r-i3 repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/sur5r-keyring.gpg] http://debian.sur5r.net/i3/ {{ ubuntu_codename.stdout }} universe"
+    filename: sur5r-i3
+    state: present
+    update_cache: false
+
+# - name: Configure apt pinning for sur5r-i3 repository (priority over standard repos)
+#   ansible.builtin.copy:
+#     dest: /etc/apt/preferences.d/sur5r-i3
+#     content: |
+#       Package: i3 i3-wm i3bar i3status i3lock i3blocks
+#       Pin: origin debian.sur5r.net
+#       Pin-Priority: 1001
+#     mode: '0644'
+
+- name: Install i3 from sur5r repository
+  ansible.builtin.apt:
+    name: i3
     state: latest
     update_cache: true
 
-- name: Get configs
-  ansible.builtin.git:
-    repo: git@github.com:fl64/dotfiles.git
-    dest: /tmp/ansible-examples
-    single_branch: true
-    version: master
+- name: Install i3 and core packages
+  ansible.builtin.apt:
+    name:
+      # Core i3 packages
+      - i3
+      - i3blocks
+      - i3lock
+      - rofi
+      - picom
+      - feh
+      - scrot
+      - xautolock
+      - dunst
+      - xclip # snippets.sh
+    state: latest
+    update_cache: true
+
+- name: Install X11 utilities
+  ansible.builtin.apt:
+    name:
+      - x11-xserver-utils # xset, xrandr
+      - x11-xkb-utils # setxkbmap
+      - xserver-xorg-input-libinput # xinput
+    state: latest
+
+- name: Install screenshot and image tools
+  ansible.builtin.apt:
+    name:
+      - flameshot
+      - imagemagick # convert for lock script
+    state: latest
+
+# - name: Install media and audio tools
+#   ansible.builtin.apt:
+#     name:
+#       - playerctl
+#       - pulseaudio-utils  # pactl
+#     state: latest
+
+- name: Install system utilities
+  ansible.builtin.apt:
+    name:
+      - light # screen brightness control
+      - bc # calculator for scripts
+      - jq # JSON parser
+      - curl
+      - htop
+      - psmisc # fuser for webcam script
+      - dnsutils # dig command
+      - wireless-tools # iwgetid for ssid script
+      - libnotify-bin # notify-send
+      - xdotool # for snippets script
+    state: latest
+
+- name: Install network and autostart tools
+  ansible.builtin.apt:
+    name:
+      - network-manager # nmtui (TUI), nmcli (CLI) - TUI альтернатива nm-applet
+      - dex # XDG autostart (CLI утилита)
+    state: latest
+
+# - name: Install input gestures
+#   ansible.builtin.apt:
+#     name:
+#       - libinput-gestures
+#     state: latest
+
+- name: Install terminal and GUI tools
+  ansible.builtin.apt:
+    name:
+      - tilix
+      - cpupower-gui
+      - zenity
+      - fonts-font-awesome
+    state: latest
+
+# - name: Get GitHub SSH host key
+#   ansible.builtin.shell: ssh-keyscan -H github.com
+#   register: github_hostkey
+#   changed_when: false
+#   failed_when: false
+
+# - name: Add GitHub to SSH known_hosts
+#   ansible.builtin.known_hosts:
+#     name: github.com
+#     key: "{{ github_hostkey.stdout }}"
+#     path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+#     state: present
+#   when: github_hostkey.stdout is defined and github_hostkey.stdout != ""
+#   ignore_errors: true
+
+# - name: Get configs
+#   ansible.builtin.git:
+#     repo: git@github.com:fl64/dotfiles.git
+#     dest: /tmp/ansible-examples
+#     single_branch: true
+#     version: master
+#     accept_hostkey: yes
+#   ignore_errors: true
+#   failed_when: false
+
+# bluetui: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.39' not found (required by bluetui)
+- name: Install bluetui
+  ansible.builtin.get_url:
+    url: https://github.com/pythops/bluetui/releases/download/v0.8.0/bluetui-x86_64-linux-gnu
+    dest: /usr/local/bin/bluetui
+    mode: 0755
+  tags:
+    - bluetui

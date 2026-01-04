@@ -1,0 +1,13 @@
+[Unit]
+Description=ttyd web terminal on port %i
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ttyd -t fontFamily='JetBrainsMono Nerd Font, JetBrains Mono, monospace' -t fontSize=16 -t lineHeight=1 -t letterSpacing=0 -p%i -W zsh
+Restart=always
+RestartSec=5
+User=user
+
+[Install]
+WantedBy=multi-user.target

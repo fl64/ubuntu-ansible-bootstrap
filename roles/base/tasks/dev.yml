@@ -33,7 +33,6 @@
         dest: "{{ base_user_home }}/.config/VSCodium/product.json"
         mode: "0644"
 
-
 - name: dev | Install dev tools
   ansible.builtin.apt:
     name:
@@ -46,7 +45,7 @@
 
 - name: dev | Install golang {{ golang_ver }}
   vars:
-    golang_ver: 1.22.5
+    golang_ver: 1.25.5
   ansible.builtin.unarchive:
     src: "https://go.dev/dl/go{{ golang_ver }}.linux-amd64.tar.gz"
     dest: /usr/local/
@@ -82,6 +81,7 @@
     mode: 0755
   tags:
     - lazygit
+    - never
 
 # https://github.com/krisnova/naml
 - name: naml | Install naml {{ naml_ver }}
@@ -94,6 +94,7 @@
     mode: 0755
   tags:
     - naml
+    - never
 
 # https://github.com/goss-org/goss
 - name: goss | Install goss {{ goss_ver }}
@@ -120,6 +121,7 @@
     mode: 0755
   tags:
     - gomplate
+    - never
 
 # https://github.com/erebe/wstunnel
 - name: wstunnel | Install wstunnel {{ wstunnel_ver }}
@@ -172,8 +174,7 @@
     mode: 0755
   tags:
     - operator-sdk
-
-
+    - never
 
 # https://github.com/cli/cli
 # gh extension install github/gh-skyline
@@ -201,6 +202,7 @@
       - hl
   tags:
     - hl
+    - never
 
 # https://github.com/dimonomid/nerdlog
 - name: nerdlog | Install nerdlog {{ nerdlog_ver }}
@@ -215,6 +217,7 @@
       - nerdlog
   tags:
     - nerdlog
+    - never
 
 # https://github.com/golangci/golangci-lint
 - name: golangci-lint | Install golangci-lint {{ golangci_lint_ver }}
