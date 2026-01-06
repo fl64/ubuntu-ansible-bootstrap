@@ -1,35 +1,75 @@
 ---
-- name: Install base apps
+- name: System Tools | Install system utilities
   ansible.builtin.apt:
     name:
       - htop
       - iotop
-      - nmap
-      #- fzf
-      # - exa
-      - remmina
-      # - jq
-      # - jc
-      - asciinema
-      - peek
-      - unrar
-      - tmate # remote ssh share
-      - inotify-tools
-      - timeshift
       - sysprof
-      - direnv
+      - earlyoom
+      - inotify-tools
       - tmux
+      - timeshift
+      - unrar
+      - gnome-tweaks
+      - redshift
+    state: latest
+    update_cache: true
+
+- name: Development | Install development tools
+  ansible.builtin.apt:
+    name:
       - git-crypt
       - keychain
       - ssh-askpass-gnome
-      - gnome-tweaks
+    state: latest
+    update_cache: true
+
+- name: Remote Access | Install remote access tools
+  ansible.builtin.apt:
+    name:
+      - remmina
+      - tmate # remote ssh share
+    state: latest
+    update_cache: true
+
+- name: Media | Install media and graphics tools
+  ansible.builtin.apt:
+    name:
+      - vlc
+      - audacious
+      - inkscape
+      - gimp
+      - peek
+      - flameshot
+      - asciinema
+    state: latest
+    update_cache: true
+
+- name: Network | Install network utils
+  ansible.builtin.apt:
+    name:
+      - iftop
+      - ifstat
+      - macchanger
+      - bind9-dnsutils
+      - iperf
+      - ethtool
+      - nmap
+      - shadowsocks-libev
+      - tsocks
+      - wireshark
+      - wireshark-common
       - wireguard
-      - redshift
-      - earlyoom
     state: latest
     update_cache: true
 
 
+- name: Media | Cleanup
+  ansible.builtin.apt:
+    name:
+      - rhythmbox
+      - cheese
+    state: absent
 
 
 # https://github.com/direnv/direnv
@@ -152,3 +192,13 @@
       - zellij # extract just one file
   tags:
     - zellij
+
+# https://github.com/pouriyajamshidi/tcping
+- name: Install tcping v{{ tcping_ver }}
+  tags: 
+  - tcping  
+  vars:
+    tcping_ver: 2.7.1
+  ansible.builtin.apt:
+    deb: "https://github.com/pouriyajamshidi/tcping/releases/download/v{{ tcping_ver }}/tcping-amd64.deb"
+

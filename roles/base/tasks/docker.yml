@@ -34,15 +34,6 @@
         groups: docker
         append: true
 
-    - name: Docker | Note about activating docker group without logout
-      ansible.builtin.debug:
-        msg: |
-          Пользователь {{ base_user_name }} добавлен в группу docker.
-          Чтобы активировать группу без перелогина, выполните в терминале:
-          newgrp docker
-          или
-          sg docker -c "ваша_команда"
-
 # https://github.com/docker/compose
 - name: Docker | Install docker-compose {{ docker_compose_ver }}
   vars:

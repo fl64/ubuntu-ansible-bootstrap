@@ -3,17 +3,9 @@
   ansible.builtin.import_tasks: base.yml
   tags: [base]
 
-- name: Install media packages
-  ansible.builtin.import_tasks: media.yml
-  tags: [media]
-
-- name: Install networking packages
-  ansible.builtin.import_tasks: networking.yml
-  tags: [networking]
-
-- name: Install editors
-  ansible.builtin.import_tasks: editor.yml
-  tags: [editor]
+- name: Install vim
+  ansible.builtin.import_tasks: vim.yml
+  tags: [vim]
 
 - name: Install fonts packages
   ansible.builtin.import_tasks: fonts.yml
@@ -23,9 +15,9 @@
   ansible.builtin.import_tasks: dev.yml
   tags: [dev]
 
-- name: Install terminal packages
-  ansible.builtin.import_tasks: terminal.yml
-  tags: [terminal]
+- name: Install tilix terminal packages
+  ansible.builtin.import_tasks: tilix.yml
+  tags: [tilix]
 
 - name: Install snap packages
   ansible.builtin.import_tasks: snap.yml

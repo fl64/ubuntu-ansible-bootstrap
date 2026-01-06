@@ -69,13 +69,6 @@
       - imagemagick # convert for lock script
     state: latest
 
-# - name: Install media and audio tools
-#   ansible.builtin.apt:
-#     name:
-#       - playerctl
-#       - pulseaudio-utils  # pactl
-#     state: latest
-
 - name: Install system utilities
   ansible.builtin.apt:
     name:
