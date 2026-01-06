@@ -25,6 +25,7 @@
       - gnome-tweaks
       - wireguard
       - redshift
+      - earlyoom
     state: latest
     update_cache: true
 

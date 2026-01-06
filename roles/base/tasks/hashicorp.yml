@@ -30,13 +30,7 @@
             //   include = ["registry.terraform.io/mingfang/k8s"]
             // }
 
-            // network_mirror {
-            //   url     = "https://registry.comcloud.xyz/"
-            //   include = ["registry.terraform.io/*/*"]
-            // }
-            // direct {
-            //   exclude = ["registry.terraform.io/*/*"]
-            // }
+
             network_mirror {
               url = "https://terraform-mirror.yandexcloud.net/"
               include = ["registry.terraform.io/*/*"]
@@ -52,9 +46,9 @@
     - name: TF | Install terraform {{ tf_ver }}
       vars:
         # https://releases.comcloud.xyz/terraform/
-        tf_ver: 1.14.0
+        tf_ver: 1.14.3
       ansible.builtin.unarchive:
-        src: "https://releases.comcloud.xyz/terraform/{{ tf_ver }}/terraform_{{ tf_ver }}_linux_amd64.zip"
+        src: "https://hashicorp-releases.yandexcloud.net/terraform/{{ tf_ver }}/terraform_{{ tf_ver }}_linux_amd64.zip"
         dest: /usr/local/bin/
         remote_src: true
         mode: 0755
@@ -86,7 +80,7 @@
   vars:
     packer_ver: 1.14.3
   ansible.builtin.unarchive:
-    src: "https://releases.comcloud.xyz/packer/{{ packer_ver }}/packer_{{ packer_ver }}_linux_amd64.zip"
+    src: "https://hashicorp-releases.yandexcloud.net/packer/{{ packer_ver }}/packer_{{ packer_ver }}_linux_amd64.zip"
     dest: /usr/local/bin/
     remote_src: true
     mode: 0755
