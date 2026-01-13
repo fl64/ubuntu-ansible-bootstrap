@@ -12,6 +12,7 @@
       - unrar
       - gnome-tweaks
       - redshift
+      - ncdu
     state: latest
     update_cache: true
 
@@ -195,10 +196,25 @@
 
 # https://github.com/pouriyajamshidi/tcping
 - name: Install tcping v{{ tcping_ver }}
-  tags: 
-  - tcping  
+  tags:
+  - tcping
   vars:
     tcping_ver: 2.7.1
   ansible.builtin.apt:
     deb: "https://github.com/pouriyajamshidi/tcping/releases/download/v{{ tcping_ver }}/tcping-amd64.deb"
 
+# https://github.com/wzv5/pping
+- name: pping | Install pping {{ pping_ver }}
+  vars:
+    pping_ver: 0.8.6
+  ansible.builtin.unarchive:
+    src: "https://github.com/wzv5/pping/releases/download/v{{ pping_ver }}/pping_{{ pping_ver }}_Linux_x86_64.tar.gz"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: 0755
+    extra_opts:
+      - pping # extract just one file
+  tags:
+    - pping
+
+    
