@@ -9,10 +9,23 @@
         state: latest
         update_cache: true
 
+    - name: Vim | Create colors directory
+      ansible.builtin.file:
+        path: "{{ base_user_home }}/.vim/colors"
+        state: directory
+        mode: "0755"
+
+    - name: Vim | Download gruvbox colorscheme
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/morhetz/gruvbox/master/colors/gruvbox.vim
+        dest: "{{ base_user_home }}/.vim/colors/gruvbox.vim"
+        mode: "0644"
+
     - name: Vim | Configure vim
       ansible.builtin.copy:
         content: |
-          colorscheme industry
+          colorscheme gruvbox
+          set background=dark
           set number
           syntax on
           set hlsearch

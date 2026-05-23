@@ -1,0 +1,41 @@
+---
+- name: Virtualization | Install virtualization tools
+  ansible.builtin.apt:
+    name:
+      - qemu-kvm
+      - virt-manager
+      - libvirt-daemon-system
+      - virtinst
+      - libvirt-clients
+      - numactl
+      - bridge-utils
+      - genisoimage
+      - libguestfs-tools
+    state: latest
+    update_cache: true
+
+- name: Virtualization | Start and enable libvirtd service
+  ansible.builtin.systemd:
+    name: libvirtd
+    state: started
+    enabled: true
+
+# Add user to libvirt group to allow managing VMs without sudo
+# Members of libvirt group can use virsh, virt-manager and other libvirt tools without root privileges
+- name: Virtualization | Add user to libvirt group
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    groups: libvirt
+    append: true
+  become: true
+
+# Grant libvirt-qemu user read and execute permissions on user home directory
+# This allows libvirt to access VM disk images and configuration files stored in the user's home directory
+- name: Virtualization | Set ACL for libvirt-qemu on {{ base_user_home }}
+  ansible.posix.acl:
+    path: "{{ base_user_home }}"
+    entity: libvirt-qemu
+    etype: user
+    permissions: rx
+    state: present
+  become: true

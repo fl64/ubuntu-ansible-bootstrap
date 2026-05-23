@@ -2,7 +2,7 @@
 # https://github.com/derailed/k9s/releases
 - name: K8s | Install k9s {{ k9s_ver }}
   vars:
-    k9s_ver: 0.50.16
+    k9s_ver: 0.50.18
     k9s_folder: "{{ base_user_home }}/.config/k9s"
   tags:
     - k9s

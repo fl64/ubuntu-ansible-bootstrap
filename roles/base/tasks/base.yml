@@ -218,3 +218,12 @@
     - pping
 
     
+
+# https://dl.min.io/client/mc/release/linux-amd64/mc
+- name: mc | Install 
+  ansible.builtin.get_url:
+    url: "https://dl.min.io/client/mc/release/linux-amd64/mc"
+    dest: /usr/local/bin/mc
+    mode: 0755
+  tags:
+    - mc

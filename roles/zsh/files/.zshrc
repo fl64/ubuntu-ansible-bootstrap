@@ -242,6 +242,11 @@ function v12ha-on () {
     kubectl patch mc virtualization --type merge --patch '{"spec":{"settings":{"highAvailability":true}}}'
 }
 
+function consv () {
+    kubectl patch mpo console --type merge --patch  '{"spec":{"imageTag":"'$1'"}}'
+}
+
+
 ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass.txt
 function ssh () {/usr/bin/ssh -t $@ "tmux attach || tmux new";}
 
@@ -250,6 +255,23 @@ function generateqr () { printf "$@" | curl -F-=\<- qrenco.de }
 
 # get a list of files in the current folder and subfolders which contains the word “text”, the line number, and the line contact inside “less”
 function ftext () { grep -iIHrn --color=always "$1" . | less -R -r }
+
+# find in files
+function fif() { rg --files-with-matches --no-messages "$1" | fzf --preview "rg --ignore-case --pretty --context 10 '$1' {}"; }
+
+# find in commit diff
+function ficd() {
+  local term="$1"
+  git log --all -G"$term" --oneline --color=always | \
+  fzf --ansi \
+     --preview-window down:70%:wrap \
+     --preview '
+        git show -p --color=always {1} |
+        grep --color=always -in "'"$term"'" ||
+        git show -p --color=always {1}
+     ' \
+     --bind 'enter:execute(git show -p --color=always {1} | less -R -p "'"$term"'")+abort'
+}
 
 # =============================================================
 
@@ -263,24 +285,24 @@ export EDITOR="vim"
 
 
 # FL
-eval $( keychain --eval -q )
-/usr/bin/keychain --inherit any --confirm $HOME/.ssh/id_rsa
+eval $(keychain --eval -q)
+/usr/bin/keychain --inherit any --confirm $HOME/.ssh/id_ed25519
 #/usr/bin/keychain --inherit any --confirm $HOME/.ssh/tfadm-id-rsa
 
 export PATH="${PATH}:/home/user/bin:/home/user/go/bin"
 
-#. <(istioctl completion zsh)
-
-#. <(kubespy completion zsh)
-
-# . <(kubebuilder completion zsh)
 . <(d8 completion zsh)
 
-# The next line updates PATH for Yandex Cloud CLI.
-if [ -f '/home/user/yandex-cloud/path.bash.inc' ]; then source '/home/user/yandex-cloud/path.bash.inc'; fi
-
-# The next line enables shell command completion for yc.
-if [ -f '/home/user/yandex-cloud/completion.zsh.inc' ]; then source '/home/user/yandex-cloud/completion.zsh.inc'; fi
-[[ "$PATH" == *"$HOME/bin:"* ]] || export PATH="$HOME/bin:$PATH"
-
 ! { which flint | grep -qsE "^/home/user/.trdl/"; } && [[ -x "$HOME/bin/trdl" ]] && source $("$HOME/bin/trdl" use flint "2")
+! { which werf | grep -qsE "^/home/user/.trdl/"; } && [[ -x "$HOME/bin/trdl" ]] && source $("$HOME/bin/trdl" use werf "2" "stable")
+
+
+# bun completions
+[ -s "/home/user/.bun/_bun" ] && source "/home/user/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+
+export PATH=~/.npm-global/bin:$PATH

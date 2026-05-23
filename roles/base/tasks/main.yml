@@ -46,3 +46,7 @@
 - name: Install ttyd packages
   ansible.builtin.import_tasks: ttyd.yml
   tags: [ttyd]
+
+- name: Install libvirt-qemu packages
+  ansible.builtin.import_tasks: libvirt-qemu.yml
+  tags: [virt]
