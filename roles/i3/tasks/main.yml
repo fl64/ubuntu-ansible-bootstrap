@@ -99,8 +99,6 @@
       - jq # JSON parser
       - curl
       - htop
-      - cargo # build i3status-rs
-      - rustc # build i3status-rs
       - build-essential
       - pkg-config
       - libssl-dev
@@ -145,16 +143,29 @@
       - fonts-font-awesome
     state: latest
 
+- name: Install rustup script
+  become: false
+  ansible.builtin.get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-init.sh
+    mode: "0755"
+
+- name: Install Rust toolchain via rustup
+  become: false
+  ansible.builtin.command:
+    cmd: /tmp/rustup-init.sh -y --profile minimal --default-toolchain stable
+    creates: "{{ i3_user_home }}/.cargo/bin/cargo"
+
 - name: Install i3status-rs via cargo
   become: false
   ansible.builtin.command:
-    cmd: cargo install --locked i3status-rs
+    cmd: "{{ i3_user_home }}/.cargo/bin/cargo install --locked i3status-rs"
     creates: "{{ i3_user_home }}/.cargo/bin/i3status-rs"
 
 - name: Install wiremix via cargo
   become: false
   ansible.builtin.command:
-    cmd: cargo install --locked wiremix
+    cmd: "{{ i3_user_home }}/.cargo/bin/cargo install --locked wiremix"
     creates: "{{ i3_user_home }}/.cargo/bin/wiremix"
 
 - name: Copy i3status-rs to system path
@@ -170,6 +181,47 @@
     src: "{{ i3_user_home }}/.cargo/bin/wiremix"
     dest: /usr/local/bin/wiremix
     mode: "0755"
+
+# - name: i3 | Create config directory
+#   become: false
+#   ansible.builtin.file:
+#     path: "{{ i3_user_home }}/.config"
+#     state: directory
+#     mode: "0755"
+
+# - name: i3 | Copy config directories
+#   become: false
+#   ansible.builtin.copy:
+#     src: "{{ item.src }}"
+#     dest: "{{ i3_user_home }}/.config/{{ item.dest }}"
+#     mode: preserve
+#   loop:
+#     - { src: i3/, dest: i3/ }
+#     - { src: i3-scripts/, dest: i3-scripts/ }
+#     - { src: i3-volume/, dest: i3-volume/ }
+#     - { src: i3status-rust/, dest: i3status-rust/ }
+#     - { src: rofi/, dest: rofi/ }
+#     - { src: picom/, dest: picom/ }
+
+# - name: i3 | Create screenshots directory
+#   become: false
+#   ansible.builtin.file:
+#     path: "{{ i3_user_home }}/Pictures/screenshots"
+#     state: directory
+#     mode: "0755"
+
+# - name: i3 | Make i3 scripts executable
+#   become: false
+#   ansible.builtin.file:
+#     path: "{{ i3_user_home }}/.config/i3-scripts"
+#     mode: "0755"
+#     recurse: true
+
+# - name: i3 | Make i3-volume executable
+#   become: false
+#   ansible.builtin.file:
+#     path: "{{ i3_user_home }}/.config/i3-volume/volume"
+#     mode: "0755"
 
 # - name: Get GitHub SSH host key
 #   ansible.builtin.shell: ssh-keyscan -H github.com
