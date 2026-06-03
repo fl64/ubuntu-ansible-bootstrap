@@ -19,11 +19,19 @@
   ansible.builtin.import_tasks: tilix.yml
   tags: [tilix]
 
+- name: Install ghostty terminal
+  ansible.builtin.import_tasks: ghostty.yml
+  tags: [ghostty]
+
+- name: Install Throne
+  ansible.builtin.import_tasks: throne.yml
+  tags: [throne]
+
 - name: Install snap packages
   ansible.builtin.import_tasks: snap.yml
   tags: [snap,never]
 
-- name: Install pki packages
+- name: Install pki packagesэто
   ansible.builtin.import_tasks: pki.yml
   tags: [pki]
 

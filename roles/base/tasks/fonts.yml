@@ -56,6 +56,7 @@
         src: "{{ font_awesome_url }}"
         dest: "{{ font_awesome_dir }}"
         remote_src: true
-        mode: 0644
+        mode: "0644"
+        creates: "{{ font_awesome_dir }}/fontawesome-free-7.1.0-desktop"
       notify:
         - Reload font cache
