@@ -51,6 +51,13 @@
         depth: 1
         force: true
 
+    - name: Zsh | Install zsh-kubectl-prompt
+      ansible.builtin.git:
+        repo: https://github.com/superbrothers/zsh-kubectl-prompt
+        dest: "{{ base_user_home }}/.oh-my-zsh/custom/plugins/zsh-kubectl-prompt"
+        depth: 1
+        force: true
+
     # https://medium.com/@alex285/get-powerlevel9k-the-most-cool-linux-shell-ever-1c38516b0caa
     - name: Zsh | Install powerlevel10k
       ansible.builtin.git:
