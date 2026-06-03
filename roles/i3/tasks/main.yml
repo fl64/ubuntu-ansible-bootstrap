@@ -1,9 +1,9 @@
 ---
 - name: Download sur5r keyring
   ansible.builtin.get_url:
-    url: https://debian.sur5r.net/i3/pool/main/s/sur5r-keyring/sur5r-keyring_2025.03.09_all.deb
+    url: https://debian.sur5r.net/i3/pool/universe/s/sur5r-keyring/sur5r-keyring_2025.12.14_all.deb
     dest: /tmp/sur5r-keyring.deb
-    checksum: sha256:2c2601e6053d5c68c2c60bcd088fa9797acec5f285151d46de9c830aaba6173c
+    checksum: sha256:2c816fbd12ea4d84811818aed0ce3a5da589be1afa30833eb32abc1e4fe6349e
 
 - name: Install sur5r keyring
   ansible.builtin.apt:
@@ -17,7 +17,7 @@
 
 - name: Add sur5r-i3 repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/sur5r-keyring.gpg] http://debian.sur5r.net/i3/ {{ ubuntu_codename.stdout }} universe"
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/sur5r-keyring.gpg] http://debian.sur5r.net/i3/ {{ ubuntu_codename.stdout }} universe"
     filename: sur5r-i3
     state: present
     update_cache: false
@@ -59,8 +59,30 @@
     name:
       - x11-xserver-utils # xset, xrandr
       - x11-xkb-utils # setxkbmap
-      - xserver-xorg-input-libinput # xinput
+      - xinput
+      - xserver-xorg-input-libinput
+      - libinput-tools
+      - wmctrl
     state: latest
+
+- name: Clone libinput-gestures
+  ansible.builtin.git:
+    repo: https://github.com/bulletmark/libinput-gestures.git
+    dest: /tmp/libinput-gestures
+    version: master
+    update: true
+
+- name: Install libinput-gestures
+  ansible.builtin.command:
+    cmd: ./libinput-gestures-setup install
+    chdir: /tmp/libinput-gestures
+    creates: /usr/bin/libinput-gestures-setup
+
+- name: Add user to input group
+  ansible.builtin.user:
+    name: "{{ i3_user_name }}"
+    groups: input
+    append: true
 
 - name: Install screenshot and image tools
   ansible.builtin.apt:
@@ -77,6 +99,26 @@
       - jq # JSON parser
       - curl
       - htop
+      - cargo # build i3status-rs
+      - rustc # build i3status-rs
+      - build-essential
+      - pkg-config
+      - libssl-dev
+      - libdbus-1-dev
+      - libpulse-dev
+      - libsensors-dev
+      - libxcb-randr0-dev
+      - libxcb-keysyms1-dev
+      - libgtk-3-dev
+      - libnotify-dev
+      - playerctl # media keys
+      - pulseaudio-utils # pactl for volume scripts
+      - alsa-utils # amixer fallback for i3-volume
+      - upower # battery-plus
+      - lm-sensors # sensors for temperature scripts
+      - dbus-bin # dbus-send for notification checks
+      - iproute2 # ip route for network scripts
+      - bsdextrautils # column for i3status-rs k8s popup
       - psmisc # fuser for webcam script
       - dnsutils # dig command
       - wireless-tools # iwgetid for ssid script
@@ -88,23 +130,46 @@
   ansible.builtin.apt:
     name:
       - network-manager # nmtui (TUI), nmcli (CLI) - TUI альтернатива nm-applet
+      - network-manager-gnome # nm-applet tray icon
+      - bluez # bluetooth block
       - dex # XDG autostart (CLI утилита)
     state: latest
-
-# - name: Install input gestures
-#   ansible.builtin.apt:
-#     name:
-#       - libinput-gestures
-#     state: latest
 
 - name: Install terminal and GUI tools
   ansible.builtin.apt:
     name:
       - tilix
+      - nautilus
       - cpupower-gui
       - zenity
       - fonts-font-awesome
     state: latest
+
+- name: Install i3status-rs via cargo
+  become: false
+  ansible.builtin.command:
+    cmd: cargo install --locked i3status-rs
+    creates: "{{ i3_user_home }}/.cargo/bin/i3status-rs"
+
+- name: Install wiremix via cargo
+  become: false
+  ansible.builtin.command:
+    cmd: cargo install --locked wiremix
+    creates: "{{ i3_user_home }}/.cargo/bin/wiremix"
+
+- name: Copy i3status-rs to system path
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ i3_user_home }}/.cargo/bin/i3status-rs"
+    dest: /usr/local/bin/i3status-rs
+    mode: "0755"
+
+- name: Copy wiremix to system path
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ i3_user_home }}/.cargo/bin/wiremix"
+    dest: /usr/local/bin/wiremix
+    mode: "0755"
 
 # - name: Get GitHub SSH host key
 #   ansible.builtin.shell: ssh-keyscan -H github.com
