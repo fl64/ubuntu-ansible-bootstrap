@@ -138,7 +138,6 @@ alias wanip6='dig @resolver1.ipv6-sandbox.opendns.com AAAA myip.opendns.com +sho
 
 # other
 alias cls="clear"
-alias ls="exa"
 alias cats='highlight -O ansi --force'
 alias bat='bat -p --theme gruvbox-dark'
 
@@ -148,10 +147,10 @@ alias dcd="docker-compose down"
 alias dcl="docker-compose logs"
 
 # vagrant
-alias vd="vagrant destroy"
-alias vdf="vagrant destroy -f"
-alias vu="vagrant up --provision"
-alias vs="vagrant ssh"
+# alias vd="vagrant destroy"
+# alias vdf="vagrant destroy -f"
+# alias vu="vagrant up --provision"
+# alias vs="vagrant ssh"
 
 # v12n
 alias vm="kubectl get vms -o wide"
@@ -175,7 +174,6 @@ alias cvi9="k9s -c cvi"
 alias vmbda9="k9s -c vmbda"
 alias kvvmim="k9s -c intvirtvmim"
 alias pod9="k9s -c pod"
-
 
 # terraform
 alias tfp="terraform plan -no-color | grep -E '(^.*[#~+-] .*|^[[:punct:]]|Plan)'"
@@ -206,6 +204,10 @@ function d8gv () {
     kubectl -n d8-system get pods -l app=deckhouse -o json | jq '.items[].status.containerStatuses[] | select(.name=="deckhouse") | {image, imageID}'  -c
 }
 
+function consv () {
+    kubectl patch mpo console --type merge --patch  '{"spec":{"imageTag":"'$1'"}}'
+}
+
 function v12wait () {
     tag=$(v12gv)
     echo "Waiting for virtualization will be deployed..."
@@ -216,7 +218,6 @@ function v12wait () {
         kubectl wait module virtualization --for='jsonpath={.status.phase}=Ready' --timeout=300s
     fi
 }
-
 
 function v12sv () {
     kubectl patch mpo virtualization --type merge --patch  '{"spec":{"imageTag":"'$1'"}}'
@@ -240,10 +241,6 @@ function v12ha-off () {
 
 function v12ha-on () {
     kubectl patch mc virtualization --type merge --patch '{"spec":{"settings":{"highAvailability":true}}}'
-}
-
-function consv () {
-    kubectl patch mpo console --type merge --patch  '{"spec":{"imageTag":"'$1'"}}'
 }
 
 
@@ -275,34 +272,40 @@ function ficd() {
 
 # =============================================================
 
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
-
 export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-
-export EDITOR="vim"
-
-
-# FL
-eval $(keychain --eval -q)
-/usr/bin/keychain --inherit any --confirm $HOME/.ssh/id_ed25519
-#/usr/bin/keychain --inherit any --confirm $HOME/.ssh/tfadm-id-rsa
-
-export PATH="${PATH}:/home/user/bin:/home/user/go/bin"
-
-. <(d8 completion zsh)
-
-! { which flint | grep -qsE "^/home/user/.trdl/"; } && [[ -x "$HOME/bin/trdl" ]] && source $("$HOME/bin/trdl" use flint "2")
-! { which werf | grep -qsE "^/home/user/.trdl/"; } && [[ -x "$HOME/bin/trdl" ]] && source $("$HOME/bin/trdl" use werf "2" "stable")
-
-
-# bun completions
-[ -s "/home/user/.bun/_bun" ] && source "/home/user/.bun/_bun"
-
-# bun
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
+export LIBVIRT_DEFAULT_URI="qemu:///system"
+
+# zsh keeps PATH in sync with the path array; -U removes duplicates.
+path=(
+  "$HOME/.npm-global/bin"
+  "$BUN_INSTALL/bin"
+  "$HOME/.opencode/bin"
+  "$GOPATH/bin"
+  "$GOROOT/bin"
+  "${KREW_ROOT:-$HOME/.krew}/bin"
+  $path
+  "$HOME/bin"
+)
+typeset -U path PATH
+
+if command -v kubectl >/dev/null 2>&1; then
+  source <(kubectl completion zsh)
+  alias k=kubectl
+  compdef __start_kubectl k
+fi
 
 
-export PATH=~/.npm-global/bin:$PATH
+if command -v task >/dev/null 2>&1; then
+  source <(task --completion zsh)
+fi
+
+
+[[ "$(command -v flint 2>/dev/null)" != "$HOME/.trdl/"* ]] && [[ -x "$HOME/bin/trdl" ]] && source "$("$HOME/bin/trdl" use flint "2")"
+[[ "$(command -v werf 2>/dev/null)" != "$HOME/.trdl/"* ]] && [[ -x "$HOME/bin/trdl" ]] && source "$("$HOME/bin/trdl" use werf "2" "stable")"
+
+
+[[ -x /usr/bin/keychain ]] && eval "$(/usr/bin/keychain --eval -q --inherit any --confirm "$HOME/.ssh/id_ed25519")"
+
+
