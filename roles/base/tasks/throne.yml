@@ -1,0 +1,61 @@
+---
+# https://github.com/throneproj/Throne/releases
+- name: throne | Get latest release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/throneproj/Throne/releases/latest
+    return_content: true
+  register: throne_release
+
+- name: throne | Set deb package URL
+  ansible.builtin.set_fact:
+    throne_deb_url: >-
+      {{
+        throne_release.json.assets
+        | selectattr('browser_download_url', 'search', 'Throne-.*-debian-x64\\.deb$')
+        | map(attribute='browser_download_url')
+        | first
+      }}
+
+- name: throne | Download deb package
+  ansible.builtin.get_url:
+    url: "{{ throne_deb_url }}"
+    dest: /tmp/throne.deb
+    mode: "0644"
+
+- name: throne | Install deb package
+  ansible.builtin.apt:
+    deb: /tmp/throne.deb
+
+- name: throne | Create applications directory
+  become: false
+  ansible.builtin.file:
+    path: "{{ base_user_home }}/.local/share/applications"
+    state: directory
+    mode: "0755"
+
+- name: throne | Create desktop entry
+  become: false
+  ansible.builtin.copy:
+    dest: "{{ base_user_home }}/.local/share/applications/throne.desktop"
+    mode: "0644"
+    content: |
+      [Desktop Entry]
+      Name=Throne
+      Exec={{ base_user_home }}/bin/Throne/Throne
+      Icon={{ base_user_home }}/bin/Throne/Throne.png
+      Type=Application
+      Categories=Network;
+      Comment=Proxy client
+
+- name: throne | Update desktop database
+  become: false
+  ansible.builtin.command:
+    cmd: "update-desktop-database {{ base_user_home }}/.local/share/applications/"
+  changed_when: false
+
+- name: throne | Create bin symlink
+  become: false
+  ansible.builtin.file:
+    src: "{{ base_user_home }}/bin/Throne/Throne"
+    dest: "{{ base_user_home }}/bin/throne"
+    state: link

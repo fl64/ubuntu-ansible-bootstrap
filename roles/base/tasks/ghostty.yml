@@ -1,0 +1,12 @@
+---
+# https://github.com/mkasberg/ghostty-ubuntu
+- name: ghostty | Download installer
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh
+    dest: /tmp/ghostty-ubuntu-install.sh
+    mode: "0755"
+
+- name: ghostty | Install Ghostty
+  ansible.builtin.command:
+    cmd: /bin/bash /tmp/ghostty-ubuntu-install.sh
+    creates: /usr/bin/ghostty
