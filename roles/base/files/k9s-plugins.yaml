@@ -36,7 +36,7 @@
 plugins:
   # Leverage stern (https://github.com/wercker/stern) to output logs.
   watch-events:
-    shortCut: Shift-E
+    shortCut: Shift-W
     confirm: false
     description: Get Events
     scopes:
@@ -125,229 +125,244 @@ plugins:
         - -c
         - |
           echo '{"apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "alpine", "labels": {"app": "alpine", "debug": "1"}}, "spec": {"selector": {"matchLabels": {"app": "alpine"}}, "replicas": 1, "template": {"metadata": {"labels": {"app": "alpine", "debug": "1"}, "annotations": {"kubectl.kubernetes.io/default-container": "alpine"}}, "spec": {"containers": [{"name": "alpine", "image": "alpine:latest", "imagePullPolicy": "Always", "securityContext": {"runAsUser": 0, "runAsGroup": 0}, "stdin": true, "tty": true, "stdinOnce": true, "terminationMessagePath": "/dev/termination-log", "terminationMessagePolicy": "File", "resources": {"requests": {"cpu": "100m", "memory": "100Mi"}, "limits": {"cpu": "100m", "memory": "100Mi"}}}], "restartPolicy": "Always"}}}}' | kubectl apply -f - --context $CONTEXT --namespace $NAMESPACE
-  # v12n
-  restart-vm:
-    shortCut: r
-    confirm: true
-    description: "d8 v restart"
-    scopes:
-      - vm
-    command: d8
-    background: true
-    args:
-      - v
-      - restart
-      - --namespace
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-      - $NAME
-  stop-vm:
-    shortCut: p
-    confirm: true
-    description: "d8 v stop"
-    scopes:
-      - vm
-    command: d8
-    background: true
-    args:
-      - v
-      - stop
-      - --namespace
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-      - $NAME
-  start-vm:
-    shortCut: s
-    confirm: false
-    description: "d8 v start"
-    scopes:
-      - vm
-    command: d8
-    background: true
-    args:
-      - v
-      - start
-      - --namespace
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-      - $NAME
-  migrate-vm:
-    shortCut: m
-    confirm: false
-    description: "d8 v evict"
-    scopes:
-      - vm
-    command: d8
-    background: true
-    args:
-      - v
-      - evict
-      - --namespace
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-      - $NAME
-  console-to-vm:
-    shortCut: t
-    confirm: false
-    description: "d8 v console"
-    scopes:
-      - vm
-    command: d8
-    background: false
-    args:
-      - v
-      - console
-      - --namespace
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-      - $NAME
+  # # v12n
+  # restart-vm:
+  #   shortCut: r
+  #   confirm: true
+  #   description: "d8 v restart"
+  #   scopes:
+  #     - vm
+  #   command: d8
+  #   background: true
+  #   args:
+  #     - v
+  #     - restart
+  #     - --namespace
+  #     - $NAMESPACE
+  #     - --context
+  #     - $CONTEXT
+  #     - $NAME
+  # stop-vm:
+  #   shortCut: p
+  #   confirm: true
+  #   description: "d8 v stop"
+  #   scopes:
+  #     - vm
+  #   command: d8
+  #   background: true
+  #   args:
+  #     - v
+  #     - stop
+  #     - --namespace
+  #     - $NAMESPACE
+  #     - --context
+  #     - $CONTEXT
+  #     - $NAME
+  # start-vm:
+  #   shortCut: s
+  #   confirm: false
+  #   description: "d8 v start"
+  #   scopes:
+  #     - vm
+  #   command: d8
+  #   background: true
+  #   args:
+  #     - v
+  #     - start
+  #     - --namespace
+  #     - $NAMESPACE
+  #     - --context
+  #     - $CONTEXT
+  #     - $NAME
+  # migrate-vm:
+  #   shortCut: m
+  #   confirm: false
+  #   description: "d8 v evict"
+  #   scopes:
+  #     - vm
+  #   command: d8
+  #   background: true
+  #   args:
+  #     - v
+  #     - evict
+  #     - --namespace
+  #     - $NAMESPACE
+  #     - --context
+  #     - $CONTEXT
+  #     - $NAME
+  # migrate-all-vms:
+  #   shortCut: Shift-M
+  #   confirm: true
+  #   description: "d8 v evict all VMs in namespace"
+  #   scopes:
+  #     - all
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       kubectl get virtualmachines --context "$CONTEXT" --namespace "$NAMESPACE" -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | while read vm; do
+  #         [ -n "$vm" ] && d8 v evict --namespace "$NAMESPACE" --context "$CONTEXT" "$vm" &
+  #       done
+  #       wait
+  # console-to-vm:
+  #   shortCut: t
+  #   confirm: false
+  #   description: "d8 v console"
+  #   scopes:
+  #     - vm
+  #   command: d8
+  #   background: false
+  #   args:
+  #     - v
+  #     - console
+  #     - --namespace
+  #     - $NAMESPACE
+  #     - --context
+  #     - $CONTEXT
+  #     - $NAME
 
-  vnc-to-vm:
-    shortCut: v
-    confirm: false
-    description: "d8 v vnc"
-    scopes:
-      - vm
-    command: d8
-    background: false
-    args:
-      - v
-      - vnc
-      - --namespace
-      - $NAMESPACE
-      - --context
-      - $CONTEXT
-      - $NAME
-  snapshot-vm:
-    shortCut: Shift-S
-    confirm: true
-    description: "Create VM snapshot"
-    scopes:
-      - vm
-    command: bash
-    background: false
-    args:
-      - -c
-      - |
-        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualMachineName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  snapshot-vd:
-    shortCut: Shift-S
-    confirm: true
-    description: "Create VD snapshot"
-    scopes:
-      - vd
-    command: bash
-    background: false
-    args:
-      - -c
-      - |
-        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDiskSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualDiskName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  create-vi-from-vd:
-    shortCut: i
-    confirm: true
-    description: "Create VirtualImage from VirtualDisk"
-    scopes:
-      - vd
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        jq -n --arg ns "$NAMESPACE" --arg vd "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualImage", metadata: {name: $vd, namespace: $ns}, spec: {storage: "ContainerRegistry", dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDisk", name: $vd}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  create-cvi-from-vd:
-    shortCut: Shift-I
-    confirm: true
-    description: "Create ClusterVirtualImage from VirtualDisk"
-    scopes:
-      - vd
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        jq -n --arg ns "$NAMESPACE" --arg vd "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "ClusterVirtualImage", metadata: {name: $vd}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDisk", name: $vd, namespace: $ns}}}}' | kubectl create -f - --context "$CONTEXT" 2>&1
-  create-vd-from-snapshot:
-    shortCut: Shift-C
-    confirm: true
-    description: "Create VirtualDisk from VirtualDiskSnapshot"
-    scopes:
-      - vds
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        PREFIX=$(date +%s)
-        VDSNAP=$(kubectl get virtualdisksnapshot "$NAME" -n "$NAMESPACE" --context "$CONTEXT" -o json)
-        VD_NAME=$(echo "$VDSNAP" | jq -r '.spec.virtualDiskName')
-        jq -n --arg ns "$NAMESPACE" --arg vdname "$VD_NAME" --arg vdsnap "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDisk", metadata: {name: "\($vdname)-\($prefix)", namespace: $ns}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  create-vi-from-vdsnap:
-    shortCut: i
-    confirm: true
-    description: "Create VirtualImage from VirtualDiskSnapshot"
-    scopes:
-      - vds
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        jq -n --arg ns "$NAMESPACE" --arg vdsnap "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualImage", metadata: {name: $vdsnap, namespace: $ns}, spec: {storage: "ContainerRegistry", dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  create-cvi-from-vdsnap:
-    shortCut: Shift-I
-    confirm: true
-    description: "Create ClusterVirtualImage from VirtualDiskSnapshot"
-    scopes:
-      - vds
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        jq -n --arg ns "$NAMESPACE" --arg vdsnap "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "ClusterVirtualImage", metadata: {name: $vdsnap}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap, namespace: $ns}}}}' | kubectl create -f - --context "$CONTEXT" 2>&1
+  # vnc-to-vm:
+  #   shortCut: v
+  #   confirm: false
+  #   description: "d8 v vnc"
+  #   scopes:
+  #     - vm
+  #   command: d8
+  #   background: false
+  #   args:
+  #     - v
+  #     - vnc
+  #     - --namespace
+  #     - $NAMESPACE
+  #     - --context
+  #     - $CONTEXT
+  #     - $NAME
+  # snapshot-vm:
+  #   shortCut: Shift-S
+  #   confirm: true
+  #   description: "Create VM snapshot"
+  #   scopes:
+  #     - vm
+  #   command: bash
+  #   background: false
+  #   args:
+  #     - -c
+  #     - |
+  #       jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualMachineName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # snapshot-vd:
+  #   shortCut: Shift-S
+  #   confirm: true
+  #   description: "Create VD snapshot"
+  #   scopes:
+  #     - vd
+  #   command: bash
+  #   background: false
+  #   args:
+  #     - -c
+  #     - |
+  #       jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDiskSnapshot", metadata: {generateName: "vm-snap-", namespace: $ns}, spec: {virtualDiskName: $vm}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # create-vi-from-vd:
+  #   shortCut: i
+  #   confirm: true
+  #   description: "Create VirtualImage from VirtualDisk"
+  #   scopes:
+  #     - vd
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       jq -n --arg ns "$NAMESPACE" --arg vd "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualImage", metadata: {name: $vd, namespace: $ns}, spec: {storage: "ContainerRegistry", dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDisk", name: $vd}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # create-cvi-from-vd:
+  #   shortCut: Shift-I
+  #   confirm: true
+  #   description: "Create ClusterVirtualImage from VirtualDisk"
+  #   scopes:
+  #     - vd
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       jq -n --arg ns "$NAMESPACE" --arg vd "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "ClusterVirtualImage", metadata: {name: $vd}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDisk", name: $vd, namespace: $ns}}}}' | kubectl create -f - --context "$CONTEXT" 2>&1
+  # create-vd-from-snapshot:
+  #   shortCut: Shift-C
+  #   confirm: true
+  #   description: "Create VirtualDisk from VirtualDiskSnapshot"
+  #   scopes:
+  #     - vds
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       PREFIX=$(date +%s)
+  #       VDSNAP=$(kubectl get virtualdisksnapshot "$NAME" -n "$NAMESPACE" --context "$CONTEXT" -o json)
+  #       VD_NAME=$(echo "$VDSNAP" | jq -r '.spec.virtualDiskName')
+  #       jq -n --arg ns "$NAMESPACE" --arg vdname "$VD_NAME" --arg vdsnap "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDisk", metadata: {name: "\($vdname)-\($prefix)", namespace: $ns}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # create-vi-from-vdsnap:
+  #   shortCut: i
+  #   confirm: true
+  #   description: "Create VirtualImage from VirtualDiskSnapshot"
+  #   scopes:
+  #     - vds
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       jq -n --arg ns "$NAMESPACE" --arg vdsnap "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualImage", metadata: {name: $vdsnap, namespace: $ns}, spec: {storage: "ContainerRegistry", dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # create-cvi-from-vdsnap:
+  #   shortCut: Shift-I
+  #   confirm: true
+  #   description: "Create ClusterVirtualImage from VirtualDiskSnapshot"
+  #   scopes:
+  #     - vds
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       jq -n --arg ns "$NAMESPACE" --arg vdsnap "$NAME" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "ClusterVirtualImage", metadata: {name: $vdsnap}, spec: {dataSource: {type: "ObjectRef", objectRef: {kind: "VirtualDiskSnapshot", name: $vdsnap, namespace: $ns}}}}' | kubectl create -f - --context "$CONTEXT" 2>&1
 
-  create-hotplug-disk:
-    shortCut: Shift-H
-    confirm: true
-    description: "Attach empty hotplug disk to VM"
-    scopes:
-      - vm
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        PREFIX=$(date +%Y-%m-%d-%H-%M-%S)
-        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDisk", metadata: {name: "k9s-disk-\($prefix)", namespace: $ns}, spec: {persistentVolumeClaim: {size: "100Mi"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineBlockDeviceAttachment", metadata: {name: "k9s-attach-\($prefix)", namespace: $ns}, spec: {virtualMachineName: $vm, blockDeviceRef: {kind: "VirtualDisk", name: "k9s-disk-\($prefix)"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  clone-vm:
-    shortCut: Shift-C
-    confirm: true
-    description: "Clone VM via VirtualMachineOperation"
-    scopes:
-      - vm
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        PREFIX=$(date +%s)
-        jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineOperation", metadata: {name: "k9s-clone-\($prefix)-\($vm)", namespace: $ns}, spec: {type: "Clone", virtualMachineName: $vm, clone: {mode: "BestEffort", customization: {nameSuffix: "-\($prefix)"}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
-  create-vm-from-snapshot:
-    shortCut: Shift-C
-    confirm: true
-    description: "Create VM from VirtualMachineSnapshot"
-    scopes:
-      - vmsnapshot
-    command: bash
-    background: true
-    args:
-      - -c
-      - |
-        PREFIX=$(date +%s)
-        jq -n --arg ns "$NAMESPACE" --arg vmsnap "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineSnapshotOperation", metadata: {name: "k9s-create-vm-\($prefix)-\($vmsnap)", namespace: $ns}, spec: {type: "CreateVirtualMachine", virtualMachineSnapshotName: $vmsnap, createVirtualMachine: {mode: "BestEffort", customization: {nameSuffix: "-\($prefix)"}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # create-hotplug-disk:
+  #   shortCut: Shift-H
+  #   confirm: true
+  #   description: "Attach empty hotplug disk to VM"
+  #   scopes:
+  #     - vm
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       PREFIX=$(date +%Y-%m-%d-%H-%M-%S)
+  #       jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualDisk", metadata: {name: "k9s-disk-\($prefix)", namespace: $ns}, spec: {persistentVolumeClaim: {size: "100Mi"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  #       jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineBlockDeviceAttachment", metadata: {name: "k9s-attach-\($prefix)", namespace: $ns}, spec: {virtualMachineName: $vm, blockDeviceRef: {kind: "VirtualDisk", name: "k9s-disk-\($prefix)"}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # clone-vm:
+  #   shortCut: Shift-C
+  #   confirm: true
+  #   description: "Clone VM via VirtualMachineOperation"
+  #   scopes:
+  #     - vm
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       PREFIX=$(date +%s)
+  #       jq -n --arg ns "$NAMESPACE" --arg vm "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineOperation", metadata: {name: "k9s-clone-\($prefix)-\($vm)", namespace: $ns}, spec: {type: "Clone", virtualMachineName: $vm, clone: {mode: "BestEffort", customization: {nameSuffix: "-\($prefix)"}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
+  # create-vm-from-snapshot:
+  #   shortCut: Shift-C
+  #   confirm: true
+  #   description: "Create VM from VirtualMachineSnapshot"
+  #   scopes:
+  #     - vmsnapshot
+  #   command: bash
+  #   background: true
+  #   args:
+  #     - -c
+  #     - |
+  #       PREFIX=$(date +%s)
+  #       jq -n --arg ns "$NAMESPACE" --arg vmsnap "$NAME" --arg prefix "$PREFIX" '{apiVersion: "virtualization.deckhouse.io/v1alpha2", kind: "VirtualMachineSnapshotOperation", metadata: {name: "k9s-create-vm-\($prefix)-\($vmsnap)", namespace: $ns}, spec: {type: "CreateVirtualMachine", virtualMachineSnapshotName: $vmsnap, createVirtualMachine: {mode: "BestEffort", customization: {nameSuffix: "-\($prefix)"}}}}' | kubectl create -f - --context "$CONTEXT" --namespace "$NAMESPACE" 2>&1
